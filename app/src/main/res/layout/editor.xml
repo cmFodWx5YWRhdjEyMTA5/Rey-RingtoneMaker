@@ -42,12 +42,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent">
 
-                <com.mp3cutter.ringtonemaker.Ringdroid.WaveformView
+                <com.mghstudio.ringtonemaker.Ringdroid.WaveformView
                     android:id="@+id/waveform"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"/>
 
-                <com.mp3cutter.ringtonemaker.Ringdroid.MarkerView
+                <com.mghstudio.ringtonemaker.Ringdroid.MarkerView
                     android:id="@+id/endmarker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
                     android:nextFocusUp="@+id/startmarker"
                     android:src="@drawable/end_dragger"/>
 
-                <com.mp3cutter.ringtonemaker.Ringdroid.MarkerView
+                <com.mghstudio.ringtonemaker.Ringdroid.MarkerView
                     android:id="@+id/startmarker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

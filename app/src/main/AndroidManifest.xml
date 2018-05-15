@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.mp3cutter.ringtonemaker">
+          package="com.mghstudio.ringtonemaker">
 
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Activities.SplashActivity"
+            android:name="com.mghstudio.ringtonemaker.Activities.SplashActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activities.RingdroidEditActivity"
+            android:name="com.mghstudio.ringtonemaker.Activities.RingdroidEditActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true"
             android:hardwareAccelerated="true"
@@ -40,12 +40,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activities.ChooseContactActivity"
+            android:name="com.mghstudio.ringtonemaker.Activities.ChooseContactActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".Activities.RingdroidSelectActivity"
+            android:name="com.mghstudio.ringtonemaker.Activities.RingdroidSelectActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
