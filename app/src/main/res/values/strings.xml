@@ -1,5 +1,5 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">Bell</string>
+    <string name="app_name">Ringtone Creator</string>
     <string name="ringdroid_app_name">Ringdroid</string>
 
     <!--
@@ -185,7 +185,6 @@
         <item name="grey_900" type="color">#212121</item>
         <item name="blue_grey_900" type="color">#263238</item>
     </array>
-
 
 
 </resources>

@@ -47,13 +47,13 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ItemHolder> 
         holder.mSongName.setText(mData.get(position).mSongsName);
         holder.mArtistName.setText(mData.get(position).mArtistName);
 
-        ImageLoader.getInstance().displayImage(Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString(),
-                holder.mSongsImage,
-                new DisplayImageOptions.Builder().cacheInMemory(true)
-                        .showImageOnFail(R.drawable.default_art)
-                        .showImageOnLoading(R.drawable.default_art)
-                        .resetViewBeforeLoading(true)
-                        .build());
+//        ImageLoader.getInstance().displayImage(Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString(),
+//                holder.mSongsImage,
+//                new DisplayImageOptions.Builder().cacheInMemory(true)
+//                        .showImageOnFail(R.drawable.default_art)
+//                        .showImageOnLoading(R.drawable.default_art)
+//                        .resetViewBeforeLoading(true)
+//                        .build());
     }
 
     @Override

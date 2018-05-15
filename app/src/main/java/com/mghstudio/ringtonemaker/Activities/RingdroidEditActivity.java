@@ -483,20 +483,20 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
     //
 
     public static void onAbout(final Activity activity) {
-        String versionName = "";
-        try {
-            PackageManager packageManager = activity.getPackageManager();
-            String packageName = activity.getPackageName();
-            versionName = packageManager.getPackageInfo(packageName, 0).versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            versionName = "unknown";
-        }
-        new AlertDialog.Builder(activity)
-                .setTitle(R.string.about_title)
-                .setMessage(activity.getString(R.string.about_text, versionName))
-                .setPositiveButton(R.string.alert_ok_button, null)
-                .setCancelable(false)
-                .show();
+//        String versionName = "";
+//        try {
+//            PackageManager packageManager = activity.getPackageManager();
+//            String packageName = activity.getPackageName();
+//            versionName = packageManager.getPackageInfo(packageName, 0).versionName;
+//        } catch (PackageManager.NameNotFoundException e) {
+//            versionName = "unknown";
+//        }
+//        new AlertDialog.Builder(activity)
+//                .setTitle(R.string.about_title)
+//                .setMessage(activity.getString(R.string.about_text, versionName))
+//                .setPositiveButton(R.string.alert_ok_button, null)
+//                .setCancelable(false)
+//                .show();
     }
 
     //
