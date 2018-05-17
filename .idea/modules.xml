@@ -3,10 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Rey-RingtoneMaker.iml" filepath="$PROJECT_DIR$/.idea/Rey-RingtoneMaker.iml" />
-      <module fileurl="file://C:\Users\muicv\AndroidStudioProjects\Rey-RingtoneMaker\.idea\Rey-RingtoneMaker.iml" filepath="C:\Users\muicv\AndroidStudioProjects\Rey-RingtoneMaker\.idea\Rey-RingtoneMaker.iml" />
       <module fileurl="file://C:\Users\Muicv\Documents\Rey-RingtoneMaker\RingtoneMaker.iml" filepath="C:\Users\Muicv\Documents\Rey-RingtoneMaker\RingtoneMaker.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://C:\Users\muicv\AndroidStudioProjects\Rey-RingtoneMaker\app\app.iml" filepath="C:\Users\muicv\AndroidStudioProjects\Rey-RingtoneMaker\app\app.iml" />
       <module fileurl="file://C:\Users\Muicv\Documents\Rey-RingtoneMaker\app\app.iml" filepath="C:\Users\Muicv\Documents\Rey-RingtoneMaker\app\app.iml" />
     </modules>
   </component>
