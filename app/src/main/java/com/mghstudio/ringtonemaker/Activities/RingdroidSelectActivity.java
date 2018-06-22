@@ -101,6 +101,8 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
+
         mContext = getApplicationContext();
         String status = Environment.getExternalStorageState();
         if (status.equals(Environment.MEDIA_MOUNTED_READ_ONLY)) {
@@ -124,6 +126,9 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         mData = new ArrayList<>();
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
@@ -253,6 +258,9 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
                 if (Utils.checkAndRequestAudioPermissions(RingdroidSelectActivity.this)) {
                     onRecord();
                 }
+                return true;
+            case android.R.id.home:
+                onBackPressed();
                 return true;
             default:
                 return false;

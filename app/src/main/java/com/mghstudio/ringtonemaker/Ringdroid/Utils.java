@@ -128,8 +128,9 @@ public class Utils {
                         cursor.getString(5),
                         cursor.getString(10),
                         fileType);
-                if (Integer.parseInt(song.mDuration) > 1000)
-                    songsModels.add(song);
+                if (song.mDuration != null)
+                    if (Integer.parseInt(song.mDuration) > 1000)
+                        songsModels.add(song);
             } while (cursor.moveToNext());
         }
         if (cursor != null) {
