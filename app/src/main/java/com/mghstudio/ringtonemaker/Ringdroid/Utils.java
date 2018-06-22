@@ -233,7 +233,7 @@ public class Utils {
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 ContactsModel contactsModel = new ContactsModel(cursor.getString(2),
-                        cursor.getString(0));
+                        cursor.getString(0),(cursor.getString(1)));
                 contactsModels.add(contactsModel);
             } while (cursor.moveToNext());
         }

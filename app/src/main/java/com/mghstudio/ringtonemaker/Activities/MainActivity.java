@@ -11,6 +11,7 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import com.mghstudio.ringtonemaker.Adapters.CellAdapter;
 import com.mghstudio.ringtonemaker.R;
+import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,13 +35,18 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 0:
-                        Intent contact = new Intent(MainActivity.this, ChooseContactActivity.class);
-                        startActivity(contact);
+                        if(Utils.checkAndRequestContactsPermissions(MainActivity.this)){
+                            Intent contact = new Intent(MainActivity.this, ContactActivity.class);
+                            startActivity(contact);
+
+                        }
                         break;
                     case 1:
                         Intent i = new Intent(MainActivity.this, RingdroidSelectActivity.class);
                         startActivity(i);
+                        break;
                 }
+                return;
             }
         });
     }

@@ -5,6 +5,7 @@
     <!--
      Main / media select activity
      -->
+    <string name="default_ringtone">Default Ringtone</string>
 
     <string name="main_activity_label">Ringdroid</string>
 

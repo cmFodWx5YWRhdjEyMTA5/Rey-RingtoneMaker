@@ -28,6 +28,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -54,6 +55,7 @@ import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Ringdroid.Constants;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.mghstudio.ringtonemaker.Views.FastScroller;
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -132,6 +134,12 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
 
         mData = new ArrayList<>();
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        mRecyclerView.addItemDecoration(
+                new HorizontalDividerItemDecoration.Builder(getApplicationContext())
+                        .color(Color.parseColor("#dadde2"))
+                        .sizeResId(R.dimen.divider)
+                        .marginResId(R.dimen.leftmargin, R.dimen.rightmargin)
+                        .build());
 
         mFastScroller = (FastScroller) findViewById(R.id.fast_scroller);
         mFastScroller.setRecyclerView(mRecyclerView);

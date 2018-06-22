@@ -49,6 +49,7 @@
             android:name=".Activities.RingdroidSelectActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity android:name=".Activities.MainActivity"></activity>
+        <activity android:name=".Activities.ContactActivity"></activity>
     </application>
 
 </manifest>

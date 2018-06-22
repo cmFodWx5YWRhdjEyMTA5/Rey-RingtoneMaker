@@ -10,12 +10,14 @@ import android.net.Uri;
 public class ContactsModel {
     public String mName;
     public String mContactId;
+    public String mRingtone;
     public Bitmap mPhoto;
     public Uri mUri;
 
-    public ContactsModel(String name, String contactId) {
+    public ContactsModel(String name, String contactId, String ringtone) {
         mName = name;
         mContactId = contactId;
+        mRingtone = ringtone;
     }
 
     public ContactsModel(){}
