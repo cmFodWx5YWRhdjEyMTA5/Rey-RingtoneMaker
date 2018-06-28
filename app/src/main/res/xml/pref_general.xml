@@ -1,0 +1,26 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:layout="@layout/save_as"
+        >
+    </Preference>
+    <Preference
+        android:layout="@layout/rate_us"
+        android:key="RATE">
+    </Preference>
+
+    <Preference
+        android:layout="@layout/share"
+        android:key="SHARE">
+    </Preference>
+
+    <Preference
+        android:layout="@layout/feedback"
+        android:key="FEEDBACK">
+    </Preference>
+
+    <Preference
+        android:layout="@layout/about"
+        android:key="ABOUT">
+    </Preference>
+
+</PreferenceScreen>

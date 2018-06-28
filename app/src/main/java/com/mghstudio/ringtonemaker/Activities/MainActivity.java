@@ -45,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
                         Intent i = new Intent(MainActivity.this, RingdroidSelectActivity.class);
                         startActivity(i);
                         break;
+                    case 2:
+                        Intent j = new Intent(MainActivity.this, SettingsActivity.class);
+                        startActivity(j);
                 }
                 return;
             }

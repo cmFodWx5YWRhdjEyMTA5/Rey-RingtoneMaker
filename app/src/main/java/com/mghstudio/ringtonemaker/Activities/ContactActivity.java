@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -51,8 +52,7 @@ public class ContactActivity extends AppCompatActivity {
         setContentView(R.layout.activity_contact);
 
         mData = new ArrayList<>();
-//        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(mToolbar);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.contacts);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -103,11 +103,20 @@ public class ContactActivity extends AppCompatActivity {
                         "LAST_TIME_CONTACTED DESC, " +
                         "DISPLAY_NAME ASC");
 
+        Uri ringtoneUri  = RingtoneManager.getActualDefaultRingtoneUri(ContactActivity.this, RingtoneManager.TYPE_RINGTONE);
+        String ringToneName = null;
+        if(ringtoneUri == null){
+            // if ringtone_uri is null get Default Ringtone
+            ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+
+        }
+        Ringtone ringtone = RingtoneManager.getRingtone(this, ringtoneUri);
+        ringToneName = ringtone.getTitle(this);
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 ContactsModel contactsModel = new ContactsModel(cursor.getString(2),
-                        cursor.getString(0), (cursor.getString(1)));
+                        cursor.getString(0), ringToneName);
                 contactsModels.add(contactsModel);
             } while (cursor.moveToNext());
         }
