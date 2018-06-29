@@ -1,13 +1,8 @@
 package com.mghstudio.ringtonemaker.Activities;
 
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -21,20 +16,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.widget.ListView;
 
 import com.mghstudio.ringtonemaker.Adapters.AllContactsAdapter;
-import com.mghstudio.ringtonemaker.Adapters.ContactsAdapter;
 import com.mghstudio.ringtonemaker.Models.ContactsModel;
 import com.mghstudio.ringtonemaker.R;
-import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
-import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ContactActivity extends AppCompatActivity {
 
@@ -69,7 +60,7 @@ public class ContactActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 //        mData = Utils.getContacts(this, "");
         mData = getContacts(getApplicationContext());
-        mContactsAdapter = new AllContactsAdapter(this,mData);
+        mContactsAdapter = new AllContactsAdapter(this, mData);
         mRecyclerView.setAdapter(mContactsAdapter);
     }
 
@@ -91,7 +82,7 @@ public class ContactActivity extends AppCompatActivity {
                 ContactsContract.Contacts.CONTENT_URI,
                 new String[]{
                         ContactsContract.Contacts._ID,
-                        ContactsContract.RawContacts.CUSTOM_RINGTONE,
+                        ContactsContract.Contacts.CUSTOM_RINGTONE,
                         ContactsContract.Contacts.DISPLAY_NAME,
                         ContactsContract.Contacts.LAST_TIME_CONTACTED,
                         ContactsContract.Contacts.STARRED,
@@ -103,24 +94,35 @@ public class ContactActivity extends AppCompatActivity {
                         "LAST_TIME_CONTACTED DESC, " +
                         "DISPLAY_NAME ASC");
 
-        Uri ringtoneUri  = RingtoneManager.getActualDefaultRingtoneUri(ContactActivity.this, RingtoneManager.TYPE_RINGTONE);
+        Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(ContactActivity.this, RingtoneManager.TYPE_RINGTONE);
         String ringToneName = null;
-        if(ringtoneUri == null){
+        if (defaultRingtoneUri == null) {
             // if ringtone_uri is null get Default Ringtone
-            ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+            defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 
         }
-        Ringtone ringtone = RingtoneManager.getRingtone(this, ringtoneUri);
-        ringToneName = ringtone.getTitle(this);
+//        Ringtone ringtone = RingtoneManager.getRingtone(this, defaultRingtoneUri);
+//        ringToneName = ringtone.getTitle(this);
 
         if (cursor != null && cursor.moveToFirst()) {
+
+
             do {
+                Uri customUri;
+                if (cursor.getString(1) == null) {
+                    customUri = defaultRingtoneUri;
+                } else {
+                    customUri = Uri.parse(cursor.getString(1));
+                }
+                Ringtone ringtone = RingtoneManager.getRingtone(this, customUri);
+                ringToneName = ringtone.getTitle(this);
+
                 ContactsModel contactsModel = new ContactsModel(cursor.getString(2),
                         cursor.getString(0), ringToneName);
                 contactsModels.add(contactsModel);
             } while (cursor.moveToNext());
         }
-        if(cursor != null)
+        if (cursor != null)
             cursor.close();
 
         return contactsModels;
@@ -144,12 +146,12 @@ public class ContactActivity extends AppCompatActivity {
 
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(ContactActivity.this);
-        builder.setTitle("Choose an animal");
+        builder.setTitle("Choose a Ringtone");
 
 // add a radio button list
 //        String[] animals = {"horse", "cow", "camel", "sheep", "goat"};
         ArrayList<String> list = getListRingtones();
-        String []animals = new String[list.size()];
+        String[] animals = new String[list.size()];
         list.toArray(animals);
 
         int checkedItem = 1; // cow
@@ -165,6 +167,9 @@ public class ContactActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // user clicked OK
+                ListView lw = ((AlertDialog) dialog).getListView();
+                Object checkedItem = lw.getAdapter().getItem(lw.getCheckedItemPosition());
+                Log.d("Selected", checkedItem.toString() + "");
             }
         });
         builder.setNegativeButton("Cancel", null);
