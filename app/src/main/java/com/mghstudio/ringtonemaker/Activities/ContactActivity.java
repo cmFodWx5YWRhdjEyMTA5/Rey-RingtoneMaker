@@ -50,8 +50,6 @@ public class ContactActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_contact);
 
-//        mData = new ArrayList<>();
-
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.contacts);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -66,7 +64,7 @@ public class ContactActivity extends AppCompatActivity {
                         .marginResId(R.dimen.leftmargin, R.dimen.rightmargin)
                         .build());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-//        mData = Utils.getContacts(this, "");
+
         mData = getContacts(getApplicationContext());
         mContactsAdapter = new AllContactsAdapter(this, mData);
         mRecyclerView.setAdapter(mContactsAdapter);
@@ -104,7 +102,8 @@ public class ContactActivity extends AppCompatActivity {
                         "DISPLAY_NAME ASC");
 
         Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(ContactActivity.this, RingtoneManager.TYPE_RINGTONE);
-        String ringToneName = null;
+//        Uri defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        String ringToneName;
         if (defaultRingtoneUri == null) {
             // if ringtone_uri is null get Default Ringtone
             defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
@@ -137,9 +136,7 @@ public class ContactActivity extends AppCompatActivity {
     private ArrayList<String> getListRingtones() {
         ArrayList<String> list = new ArrayList<>();
         RingtoneManager manager = new RingtoneManager(this);
-        manager.setType(RingtoneManager.TYPE_ALL);
-
-
+        manager.setType(RingtoneManager.TYPE_RINGTONE);
         Cursor cursor = manager.getCursor();
         while (cursor.moveToNext()) {
             String title = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX);
@@ -214,8 +211,8 @@ public class ContactActivity extends AppCompatActivity {
                 getContentResolver().update(uri, values, null, null);
 
                 //reload data in recyclerview
-                mContactsAdapter.notifyItemChanged(which);
-//                mRecyclerView.invalidate();
+                mContactsAdapter.updateData(getContacts(getApplication()));
+                mContactsAdapter.notifyDataSetChanged();
             }
         });
         builder.setNegativeButton("Cancel", null);
