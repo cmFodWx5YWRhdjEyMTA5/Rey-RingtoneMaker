@@ -8,11 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mghstudio.ringtonemaker.Activities.ChooseContactActivity;
 import com.mghstudio.ringtonemaker.Activities.ContactActivity;
 import com.mghstudio.ringtonemaker.Models.ContactsModel;
 import com.mghstudio.ringtonemaker.R;
-import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 
 import java.util.ArrayList;
 
@@ -35,6 +33,10 @@ public class AllContactsAdapter extends RecyclerView.Adapter<AllContactsAdapter.
     @NonNull
     public AllContactsAdapter.ItemHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new AllContactsAdapter.ItemHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_all_contacts, parent, false));
+    }
+
+    public ContactsModel getItem(int pos) {
+        return mData.get(pos);
     }
 
     @Override
@@ -73,16 +75,18 @@ public class AllContactsAdapter extends RecyclerView.Adapter<AllContactsAdapter.
 
         private ItemHolder(View itemView) {
             super(itemView);
-            mContactName = (TextView) itemView.findViewById(R.id.all_contact_name);
-            mContactImage = (ImageView) itemView.findViewById(R.id.all_contact_imageview);
-            mContactRingtone = (TextView) itemView.findViewById(R.id.all_contact_ringtone);
+            mContactName = itemView.findViewById(R.id.all_contact_name);
+            mContactImage = itemView.findViewById(R.id.all_contact_imageview);
+            mContactRingtone = itemView.findViewById(R.id.all_contact_ringtone);
             itemView.setOnClickListener(this);
+
         }
 
         @Override
         public void onClick(View v) {
             if (mContactActivity != null) {
-                mContactActivity.onItemClicked(getAdapterPosition());
+                mContactActivity.onItemClicked(v, getAdapterPosition());
+
             } else {
 
             }
