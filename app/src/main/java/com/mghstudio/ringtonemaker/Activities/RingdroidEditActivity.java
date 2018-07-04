@@ -32,9 +32,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Dialogs.AfterSaveActionDialog;
 import com.mghstudio.ringtonemaker.Dialogs.FileSaveDialog;
+import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Ringdroid.MarkerView;
 import com.mghstudio.ringtonemaker.Ringdroid.SamplePlayer;
 import com.mghstudio.ringtonemaker.Ringdroid.SongMetadataReader;
@@ -109,7 +109,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
     private int mMarkerLeftInset = 0;
     private int mMarkerRightInset = 0;
     private int mMarkerTopOffset = 0;
-    private int mMarkerBottomOffset = 0;
+//    private int mMarkerBottomOffset = 0;
 
     private Thread mLoadSoundFileThread;
     private Thread mRecordAudioThread;
@@ -118,6 +118,23 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
     public static final String EDIT = "com.ringdroid.action.EDIT";
     private Context mContext;
     private boolean mWasGetContentIntent;
+
+    public static void onAbout(final Activity activity) {
+        String versionName = "";
+        try {
+            PackageManager packageManager = activity.getPackageManager();
+            String packageName = activity.getPackageName();
+            versionName = packageManager.getPackageInfo(packageName, 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            versionName = "unknown";
+        }
+        new AlertDialog.Builder(activity)
+                .setTitle(R.string.about_title)
+                .setMessage(activity.getString(R.string.about_text, versionName))
+                .setPositiveButton(R.string.alert_ok_button, null)
+                .setCancelable(false)
+                .show();
+    }
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -140,7 +157,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         mWasGetContentIntent = intent.getBooleanExtra("was_get_content_intent", false);
 
         try {
-            mFilename = intent.getExtras().getString("FILE_PATH").toString().replaceFirst("file://", "").replaceAll("%20", " ");
+            mFilename = intent.getExtras().getString("FILE_PATH").replaceFirst("file://", "").replaceAll("%20", " ");
         } catch (NullPointerException e) {
             mFilename = intent.getData().toString().replaceFirst("file://", "").replaceAll("%20", " ");
         }
@@ -155,15 +172,6 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
             loadFromFile();
         } else {
             recordAudio();
-        }
-    }
-
-    private void closeThread(Thread thread) {
-        if (thread != null && thread.isAlive()) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-            }
         }
     }
 
@@ -255,22 +263,13 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_save:
-                onSave();
-                return true;
-            case R.id.action_reset:
-                resetPositions();
-                mOffsetGoal = 0;
-                updateDisplay();
-                return true;
-            case R.id.action_about:
-                onAbout(this);
-                return true;
-            default:
-                return false;
+    private void closeThread(Thread thread) {
+        if (thread != null && thread.isAlive()) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -482,21 +481,21 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
     // Static About dialog method, also called from RingdroidSelectActivity
     //
 
-    public static void onAbout(final Activity activity) {
-//        String versionName = "";
-//        try {
-//            PackageManager packageManager = activity.getPackageManager();
-//            String packageName = activity.getPackageName();
-//            versionName = packageManager.getPackageInfo(packageName, 0).versionName;
-//        } catch (PackageManager.NameNotFoundException e) {
-//            versionName = "unknown";
-//        }
-//        new AlertDialog.Builder(activity)
-//                .setTitle(R.string.about_title)
-//                .setMessage(activity.getString(R.string.about_text, versionName))
-//                .setPositiveButton(R.string.alert_ok_button, null)
-//                .setCancelable(false)
-//                .show();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_save:
+                onSave();
+                return true;
+            case R.id.action_reset:
+                resetPositions();
+                mOffsetGoal = 0;
+                updateDisplay();
+                return true;
+
+            default:
+                return false;
+        }
     }
 
     //
@@ -510,7 +509,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
     private void loadGui() {
         // Inflate our UI from its XML layout description.
         setContentView(R.layout.editor);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() !=null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -523,32 +522,32 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
             }
         });
 
-        mStartText = (TextView) findViewById(R.id.starttext);
+        mStartText = findViewById(R.id.starttext);
         mStartText.addTextChangedListener(mTextWatcher);
 
-        mEndText = (TextView) findViewById(R.id.endtext);
+        mEndText = findViewById(R.id.endtext);
         mEndText.addTextChangedListener(mTextWatcher);
 
 
-        mPlayButton = (ImageButton) findViewById(R.id.play);
+        mPlayButton = findViewById(R.id.play);
         mPlayButton.setOnClickListener(mPlayListener);
-        mRewindButton = (ImageButton) findViewById(R.id.rew);
+        mRewindButton = findViewById(R.id.rew);
         mRewindButton.setOnClickListener(mRewindListener);
-        mFfwdButton = (ImageButton) findViewById(R.id.ffwd);
+        mFfwdButton = findViewById(R.id.ffwd);
         mFfwdButton.setOnClickListener(mFfwdListener);
 
-        TextView markStartButton = (TextView) findViewById(R.id.mark_start);
+        TextView markStartButton = findViewById(R.id.mark_start);
         markStartButton.setOnClickListener(mMarkStartListener);
 
-        TextView markEndButton = (TextView) findViewById(R.id.mark_end);
+        TextView markEndButton = findViewById(R.id.mark_end);
         markEndButton.setOnClickListener(mMarkEndListener);
 
         enableDisableButtons();
 
-        mWaveformView = (WaveformView) findViewById(R.id.waveform);
+        mWaveformView = findViewById(R.id.waveform);
         mWaveformView.setListener(this);
 
-        mInfo = (TextView) findViewById(R.id.info);
+        mInfo = findViewById(R.id.info);
         mInfo.setText(mCaption);
 
         mMaxPos = 0;
@@ -561,14 +560,14 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
             mMaxPos = mWaveformView.maxPos();
         }
 
-        mStartMarker = (MarkerView) findViewById(R.id.startmarker);
+        mStartMarker = findViewById(R.id.startmarker);
         mStartMarker.setListener(this);
         mStartMarker.setAlpha(1f);
         mStartMarker.setFocusable(true);
         mStartMarker.setFocusableInTouchMode(true);
         mStartVisible = true;
 
-        mEndMarker = (MarkerView) findViewById(R.id.endmarker);
+        mEndMarker = findViewById(R.id.endmarker);
         mEndMarker.setListener(this);
         mEndMarker.setAlpha(1f);
         mEndMarker.setFocusable(true);
@@ -714,7 +713,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
 
         adBuilder.setView(getLayoutInflater().inflate(R.layout.record_audio, null));
         mAlertDialog = adBuilder.show();
-        mTimerTextView = (TextView) mAlertDialog.findViewById(R.id.record_audio_timer);
+        mTimerTextView = mAlertDialog.findViewById(R.id.record_audio_timer);
 
         final SoundFile.ProgressListener listener =
                 new SoundFile.ProgressListener() {

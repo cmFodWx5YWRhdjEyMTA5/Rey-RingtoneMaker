@@ -34,7 +34,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -123,17 +122,17 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
 
         // Inflate our UI from its XML layout description.
         setContentView(R.layout.media_select);
-        mPermissionLayout = (LinearLayout) findViewById(R.id.permission_message_layout);
-        mAllowButton = (Button) findViewById(R.id.button_allow);
+        mPermissionLayout = findViewById(R.id.permission_message_layout);
+        mAllowButton = findViewById(R.id.button_allow);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         mData = new ArrayList<>();
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        mRecyclerView = findViewById(R.id.recycler_view);
         mRecyclerView.addItemDecoration(
                 new HorizontalDividerItemDecoration.Builder(getApplicationContext())
                         .color(Color.parseColor("#dadde2"))
@@ -141,7 +140,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
                         .marginResId(R.dimen.leftmargin, R.dimen.rightmargin)
                         .build());
 
-        mFastScroller = (FastScroller) findViewById(R.id.fast_scroller);
+        mFastScroller = findViewById(R.id.fast_scroller);
         mFastScroller.setRecyclerView(mRecyclerView);
 
 
@@ -239,7 +238,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.select_options, menu);
-        mSearchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.menu_search));
+        mSearchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
 
         if (Utils.checkAndRequestPermissions(this, false)) {
             menu.findItem(R.id.menu_search).setVisible(true);
@@ -259,9 +258,6 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_about:
-                RingdroidEditActivity.onAbout(this);
-                return true;
             case R.id.action_record:
                 if (Utils.checkAndRequestAudioPermissions(RingdroidSelectActivity.this)) {
                     onRecord();

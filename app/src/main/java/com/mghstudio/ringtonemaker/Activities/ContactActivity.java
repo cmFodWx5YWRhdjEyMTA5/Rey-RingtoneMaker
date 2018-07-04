@@ -135,6 +135,8 @@ public class ContactActivity extends AppCompatActivity {
 
     private ArrayList<String> getListRingtones() {
         ArrayList<String> list = new ArrayList<>();
+//        Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(ContactActivity.this, RingtoneManager.TYPE_RINGTONE);
+//        RingtoneManager.setActualDefaultRingtoneUri(getApplicationContext(),RingtoneManager.TYPE_RINGTONE, defaultRingtoneUri);
         RingtoneManager manager = new RingtoneManager(this);
         manager.setType(RingtoneManager.TYPE_RINGTONE);
         Cursor cursor = manager.getCursor();
