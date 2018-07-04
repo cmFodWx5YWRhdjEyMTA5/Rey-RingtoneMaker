@@ -151,7 +151,6 @@ public class Utils {
         secs %= 3600;
         mins = secs / 60;
         secs %= 60;
-.
 
         final String durationFormat = context.getResources().getString(
                 hours == 0 ? R.string.durationformatshort : R.string.durationformatlong);

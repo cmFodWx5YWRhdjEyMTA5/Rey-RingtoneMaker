@@ -20,5 +20,11 @@ public class ContactsModel {
         mRingtone = ringtone;
     }
 
+    public ContactsModel(String name, String contactId, Uri uri) {
+        mName = name;
+        mContactId = contactId;
+        mUri = uri;
+    }
+
     public ContactsModel(){}
 }

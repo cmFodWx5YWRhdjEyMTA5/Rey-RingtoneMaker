@@ -120,10 +120,11 @@ public class ContactActivity extends AppCompatActivity {
                 } else {
                     customUri = Uri.parse(cursor.getString(1));
                 }
-                ringToneName = RingtoneManager.getRingtone(ctx, customUri).getTitle(ctx);
+//                ringToneName = "aa";//RingtoneManager.getRingtone(ctx, customUri).getTitle(ctx);
 
-                ContactsModel contactsModel = new ContactsModel(cursor.getString(2),
-                        cursor.getString(0), ringToneName);
+//                ContactsModel contactsModel = new ContactsModel(cursor.getString(2),
+//                        cursor.getString(0), ringToneName);
+                ContactsModel contactsModel = new ContactsModel(cursor.getString(2),cursor.getString(0),customUri);
                 contactsModels.add(contactsModel);
             } while (cursor.moveToNext());
         }

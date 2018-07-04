@@ -1,5 +1,6 @@
 package com.mghstudio.ringtonemaker.Adapters;
 
+import android.media.RingtoneManager;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -42,7 +43,12 @@ public class AllContactsAdapter extends RecyclerView.Adapter<AllContactsAdapter.
     @Override
     public void onBindViewHolder(@NonNull ItemHolder holder, int position) {
         holder.mContactName.setText(mData.get(position).mName);
-        holder.mContactRingtone.setText(mData.get(position).mRingtone);
+        if (mData.get(position).mRingtone == null) {
+            mData.get(position).mRingtone = RingtoneManager.getRingtone(mContactActivity, mData.get(position).mUri).getTitle(mContactActivity);
+            holder.mContactRingtone.setText(mData.get(position).mRingtone);
+        }
+        else
+            holder.mContactRingtone.setText(mData.get(position).mRingtone);
     }
 
     /*@Override
