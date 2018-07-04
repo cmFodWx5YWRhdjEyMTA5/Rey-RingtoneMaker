@@ -5,18 +5,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <!--<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/fav_toolbar"
-        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
-        app:navigationContentDescription="@string/abc_action_bar_up_description"
-        android:background="?attr/colorPrimary"
-        app:navigationIcon="?attr/homeAsUpIndicator" />-->
-
-
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:id="@+id/contact_recyclerView"
@@ -29,5 +17,12 @@
         android:layout_height="match_parent">
 
     </android.support.v7.widget.RecyclerView>
+
+    <RelativeLayout
+        android:id="@+id/baner2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </RelativeLayout>
 
 </LinearLayout>

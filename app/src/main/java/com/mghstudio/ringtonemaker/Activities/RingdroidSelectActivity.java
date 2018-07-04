@@ -46,8 +46,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.facebook.ads.AdSize;
+import com.facebook.ads.AdView;
 import com.mghstudio.ringtonemaker.Adapters.SongsAdapter;
 import com.mghstudio.ringtonemaker.Models.SongsModel;
 import com.mghstudio.ringtonemaker.R;
@@ -98,11 +101,21 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     private FastScroller mFastScroller;
     private LinearLayout mPermissionLayout;
     private Button mAllowButton;
+    private AdView adView;
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        adView = new AdView(this, "2199797023369826_2199798086703053", AdSize.BANNER_HEIGHT_50);
 
+        // Find the Ad Container
+        RelativeLayout adContainer = findViewById(R.id.baner1);
+
+        // Add the ad view to your activity layout
+        adContainer.addView(adView);
+
+        // Request an ad
+        adView.loadAd();
 
         mContext = getApplicationContext();
         String status = Environment.getExternalStorageState();

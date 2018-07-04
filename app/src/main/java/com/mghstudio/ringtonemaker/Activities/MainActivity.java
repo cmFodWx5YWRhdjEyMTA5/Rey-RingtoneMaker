@@ -9,9 +9,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.RelativeLayout;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
+import com.facebook.ads.AdSize;
+import com.facebook.ads.AdView;
 import com.mghstudio.ringtonemaker.Adapters.CellAdapter;
 import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
@@ -19,10 +18,18 @@ import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 public class MainActivity extends AppCompatActivity {
 
     private GridView gridView;
-    private AdView mAdView;
+    private AdView adView;
 
     private static final String[] items = new String[]{
             "Contacts", "Ringtone", "Settings", "More"};
+
+    @Override
+    protected void onDestroy() {
+        if (adView != null) {
+            adView.destroy();
+        }
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,19 +37,17 @@ public class MainActivity extends AppCompatActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
+        adView = new AdView(this, "2199797023369826_2199797623369766", AdSize.RECTANGLE_HEIGHT_250);
 
-
-        mAdView = new AdView(this);
-        mAdView.setAdUnitId("2199797023369826_2199797623369766");
-        mAdView.setAdSize(AdSize.MEDIUM_RECTANGLE);
         // Find the Ad Container
         RelativeLayout adContainer = findViewById(R.id.AdView);
 
         // Add the ad view to your activity layout
-        adContainer.addView(mAdView);
+        adContainer.addView(adView);
 
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+        // Request an ad
+        adView.loadAd();
+
 
         gridView = findViewById(R.id.gridView);
 
@@ -70,5 +75,6 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         });
+
     }
 }

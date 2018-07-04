@@ -23,7 +23,10 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
+import com.facebook.ads.AdSize;
+import com.facebook.ads.AdView;
 import com.mghstudio.ringtonemaker.Adapters.AllContactsAdapter;
 import com.mghstudio.ringtonemaker.Models.ContactsModel;
 import com.mghstudio.ringtonemaker.R;
@@ -43,12 +46,24 @@ public class ContactActivity extends AppCompatActivity {
     String stringUri;
     String ringtoneName;
     private int checked = 0;
+    private AdView adView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_contact);
+
+        adView = new AdView(this, "2199797023369826_2199798086703053", AdSize.BANNER_HEIGHT_50);
+
+        // Find the Ad Container
+        RelativeLayout adContainer = findViewById(R.id.baner2);
+
+        // Add the ad view to your activity layout
+        adContainer.addView(adView);
+
+        // Request an ad
+        adView.loadAd();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.contacts);
