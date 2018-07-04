@@ -1140,16 +1140,16 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
             case FileSaveDialog.FILE_KIND_MUSIC:
                 // TODO(nfaralli): can directly use Environment.getExternalStoragePublicDirectory(
                 // Environment.DIRECTORY_MUSIC).getPath() instead
-                subdir = "media/audio/music/";
+                subdir = "ringtoneMaker/music/";
                 break;
             case FileSaveDialog.FILE_KIND_ALARM:
-                subdir = "media/audio/alarms/";
+                subdir = "ringtoneMaker/alarms/";
                 break;
             case FileSaveDialog.FILE_KIND_NOTIFICATION:
-                subdir = "media/audio/notifications/";
+                subdir = "ringtoneMaker/notifications/";
                 break;
             case FileSaveDialog.FILE_KIND_RINGTONE:
-                subdir = "media/audio/ringtones/";
+                subdir = "ringtoneMaker/ringtones/";
                 break;
         }
         String parentdir = externalRootDir + subdir;

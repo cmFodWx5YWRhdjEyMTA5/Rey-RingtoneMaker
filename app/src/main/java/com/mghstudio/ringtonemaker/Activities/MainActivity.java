@@ -1,14 +1,17 @@
 package com.mghstudio.ringtonemaker.Activities;
 
 import android.content.Intent;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.GridView;
+import android.widget.RelativeLayout;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.mghstudio.ringtonemaker.Adapters.CellAdapter;
 import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
@@ -16,6 +19,8 @@ import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 public class MainActivity extends AppCompatActivity {
 
     private GridView gridView;
+    private AdView mAdView;
+
     private static final String[] items = new String[]{
             "Contacts", "Ringtone", "Settings", "More"};
 
@@ -26,7 +31,20 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
 
-        gridView = (GridView) findViewById(R.id.gridView);
+
+        mAdView = new AdView(this);
+        mAdView.setAdUnitId("2199797023369826_2199797623369766");
+        mAdView.setAdSize(AdSize.MEDIUM_RECTANGLE);
+        // Find the Ad Container
+        RelativeLayout adContainer = findViewById(R.id.AdView);
+
+        // Add the ad view to your activity layout
+        adContainer.addView(mAdView);
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
+        gridView = findViewById(R.id.gridView);
 
         gridView.setAdapter(new CellAdapter(this, items));
 
@@ -35,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 0:
-                        if(Utils.checkAndRequestContactsPermissions(MainActivity.this)){
+                        if (Utils.checkAndRequestPermissions(MainActivity.this, true)) {
                             Intent contact = new Intent(MainActivity.this, ContactActivity.class);
                             startActivity(contact);
 

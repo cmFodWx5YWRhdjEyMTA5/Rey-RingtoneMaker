@@ -7,24 +7,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import com.mghstudio.ringtonemaker.R;
 
-/**
- * A {@link PreferenceActivity} that presents a set of application settings. On
- * handset devices, settings are presented as a single list. On tablets,
- * settings are split by category, with category headers shown to the left of
- * the list of settings.
- * <p>
- * See <a href="http://developer.android.com/design/patterns/settings.html">
- * Android Design: Settings</a> for design guidelines and the <a
- * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
- * API Guide</a> for more information on developing a Settings UI.
- */
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
@@ -45,12 +33,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
-
-
-    /**
-     * This fragment shows general preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class GeneralPreferenceFragment extends PreferenceFragment {
         @Override
@@ -105,14 +87,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 }
             });
 
-            Preference buttonAbout = findPreference("ABOUT");
+            /*Preference buttonAbout = findPreference("ABOUT");
             buttonAbout.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     RingdroidEditActivity.onAbout(getActivity());
                     return true;
                 }
-            });
+            });*/
 
         }
 

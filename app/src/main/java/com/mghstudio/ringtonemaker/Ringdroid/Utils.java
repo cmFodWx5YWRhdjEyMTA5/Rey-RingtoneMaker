@@ -80,6 +80,7 @@ public class Utils {
         String selection = null;
         if (searchString != null && searchString.length() > 0) {
             selection = "title LIKE ?";
+//            selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
             selectionArgs = new String[]{"%" + searchString + "%"};
         }
 
@@ -233,7 +234,7 @@ public class Utils {
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 ContactsModel contactsModel = new ContactsModel(cursor.getString(2),
-                        cursor.getString(0),(cursor.getString(1)));
+                        cursor.getString(0), (cursor.getString(1)));
                 contactsModels.add(contactsModel);
             } while (cursor.moveToNext());
         }
@@ -255,10 +256,15 @@ public class Utils {
 
     public static boolean checkAndRequestPermissions(Activity activity, boolean ask) {
         int modifyAudioPermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int readContact = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS);
         List<String> listPermissionsNeeded = new ArrayList<>();
 
         if (modifyAudioPermission != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+
+        if (readContact != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.READ_CONTACTS);
         }
 
         if (!listPermissionsNeeded.isEmpty()) {

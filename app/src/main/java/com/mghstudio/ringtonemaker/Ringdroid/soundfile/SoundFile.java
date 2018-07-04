@@ -100,8 +100,8 @@ public class SoundFile {
     // Create and return a SoundFile object using the file fileName.
     public static SoundFile create(String fileName,
                                    ProgressListener progressListener)
-        throws java.io.FileNotFoundException,
-               java.io.IOException, InvalidInputException {
+            throws
+            java.io.IOException, InvalidInputException {
         // First check that the file exists and that its extension is supported.
         File f = new File(fileName);
         if (!f.exists()) {
@@ -173,8 +173,14 @@ public class SoundFile {
     }
 
     public ShortBuffer getSamples() {
-        if (mDecodedSamples != null) {
+       /* if (mDecodedSamples != null) {
             return mDecodedSamples.asReadOnlyBuffer();
+        } else {
+            return null;
+        }*/
+        if (mDecodedSamples != null) {
+            return mDecodedSamples;
+//            return mDecodedSamples.asReadOnlyBuffer();
         } else {
             return null;
         }
@@ -190,8 +196,8 @@ public class SoundFile {
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     private void ReadFile(File inputFile)
-        throws java.io.FileNotFoundException,
-               java.io.IOException, InvalidInputException {
+            throws
+            java.io.IOException, InvalidInputException {
         MediaExtractor extractor = new MediaExtractor();
         MediaFormat format = null;
         int i;
@@ -727,7 +733,7 @@ public class SoundFile {
         if (!externalRootDir.endsWith("/")) {
             externalRootDir += "/";
         }
-        String parentDir = externalRootDir + "media/audio/debug/";
+        String parentDir = externalRootDir + "ringtoneMaker/debug/";
         // Create the parent directory
         File parentDirFile = new File(parentDir);
         parentDirFile.mkdirs();

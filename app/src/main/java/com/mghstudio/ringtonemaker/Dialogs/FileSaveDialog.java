@@ -68,55 +68,11 @@ public class FileSaveDialog extends Dialog {
         }
     }
 
-    public FileSaveDialog(Context context,
-                          Resources resources,
-                          String originalName,
-                          Message response) {
-        super(context);
-
-        // Inflate our UI from its XML layout description.
-        setContentView(R.layout.file_save);
-
-        setTitle(resources.getString(R.string.file_save_title));
-
-        mTypeArray = new ArrayList<String>();
-        mTypeArray.add(resources.getString(R.string.type_music));
-        mTypeArray.add(resources.getString(R.string.type_alarm));
-        mTypeArray.add(resources.getString(R.string.type_notification));
-        mTypeArray.add(resources.getString(R.string.type_ringtone));
-
-        mFilename = (EditText) findViewById(R.id.filename);
-        mOriginalName = originalName;
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                context, android.R.layout.simple_spinner_item, mTypeArray);
-        adapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item);
-        mTypeSpinner = (Spinner) findViewById(R.id.ringtone_type);
-        mTypeSpinner.setAdapter(adapter);
-        mTypeSpinner.setSelection(FILE_KIND_RINGTONE);
-        mPreviousSelection = FILE_KIND_RINGTONE;
-
-        setFilenameEditBoxFromName(false);
-
-        mTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> parent,
-                                       View v,
-                                       int position,
-                                       long id) {
-                setFilenameEditBoxFromName(true);
-            }
-
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
-        Button save = (Button) findViewById(R.id.save);
-        save.setOnClickListener(saveListener);
-        Button cancel = (Button) findViewById(R.id.cancel);
-        cancel.setOnClickListener(cancelListener);
-        mResponse = response;
-    }
+    private View.OnClickListener cancelListener = new View.OnClickListener() {
+        public void onClick(View view) {
+            dismiss();
+        }
+    };
 
     private void setFilenameEditBoxFromName(boolean onlyIfNotEdited) {
         if (onlyIfNotEdited) {
@@ -144,9 +100,53 @@ public class FileSaveDialog extends Dialog {
         }
     };
 
-    private View.OnClickListener cancelListener = new View.OnClickListener() {
-        public void onClick(View view) {
-            dismiss();
-        }
-    };
+    public FileSaveDialog(Context context,
+                          Resources resources,
+                          String originalName,
+                          Message response) {
+        super(context);
+
+        // Inflate our UI from its XML layout description.
+        setContentView(R.layout.file_save);
+
+        setTitle(resources.getString(R.string.file_save_title));
+
+        mTypeArray = new ArrayList<String>();
+        mTypeArray.add(resources.getString(R.string.type_music));
+        mTypeArray.add(resources.getString(R.string.type_alarm));
+        mTypeArray.add(resources.getString(R.string.type_notification));
+        mTypeArray.add(resources.getString(R.string.type_ringtone));
+
+        mFilename = findViewById(R.id.filename);
+        mOriginalName = originalName;
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                context, android.R.layout.simple_spinner_item, mTypeArray);
+        adapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item);
+        mTypeSpinner = findViewById(R.id.ringtone_type);
+        mTypeSpinner.setAdapter(adapter);
+        mTypeSpinner.setSelection(FILE_KIND_RINGTONE);
+        mPreviousSelection = FILE_KIND_RINGTONE;
+
+        setFilenameEditBoxFromName(false);
+
+        mTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> parent,
+                                       View v,
+                                       int position,
+                                       long id) {
+                setFilenameEditBoxFromName(true);
+            }
+
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        Button save = findViewById(R.id.save);
+        save.setOnClickListener(saveListener);
+        Button cancel = findViewById(R.id.cancel);
+        cancel.setOnClickListener(cancelListener);
+        mResponse = response;
+    }
 }
