@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mghstudio.ringtonemaker.R;
@@ -27,6 +28,10 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ItemHo
         mData = data;
     }
 
+    public ContactsAdapter(ArrayList<ContactsModel> data) {
+        mData = data;
+    }
+
 
     @Override
     public ContactsAdapter.ItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -39,8 +44,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ItemHo
 
         try {
             String letter = String.valueOf(mData.get(position).mName.charAt(0));
-            holder.mOneLetter.setText(letter);
-            holder.mOneLetter.setBackgroundColor(Utils.getMatColor(mChooseContactActivity.getApplicationContext()));
+//            holder.mOneLetter.setText(letter);
+            holder.mContactImage.setBackgroundColor(Utils.getMatColor(mChooseContactActivity.getApplicationContext()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -58,18 +63,22 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ItemHo
 
     public class ItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView mContactName;
-        private TextView mOneLetter;
+        private ImageView mContactImage;
 
-        public ItemHolder(View itemView) {
+        private ItemHolder(View itemView) {
             super(itemView);
-            mContactName = (TextView) itemView.findViewById(R.id.text_view_name);
-            mOneLetter = (TextView) itemView.findViewById(R.id.one_letter);
+            mContactName = (TextView) itemView.findViewById(R.id.contact_name);
+            mContactImage = (ImageView) itemView.findViewById(R.id.one_letter);
             itemView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            mChooseContactActivity.onItemClicked(getAdapterPosition());
+            if (mChooseContactActivity != null) {
+                mChooseContactActivity.onItemClicked(getAdapterPosition());
+            } else {
+
+            }
         }
     }
 }

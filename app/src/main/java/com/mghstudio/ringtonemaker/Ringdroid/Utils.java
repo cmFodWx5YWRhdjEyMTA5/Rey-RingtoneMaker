@@ -128,8 +128,9 @@ public class Utils {
                         cursor.getString(5),
                         cursor.getString(10),
                         fileType);
-                if (Integer.parseInt(song.mDuration) > 1000)
-                    songsModels.add(song);
+                if (song.mDuration != null)
+                    if (Integer.parseInt(song.mDuration) > 1000)
+                        songsModels.add(song);
             } while (cursor.moveToNext());
         }
         if (cursor != null) {
@@ -143,7 +144,7 @@ public class Utils {
     }
 
 
-    public static final String makeShortTimeString(final Context context, long secs) {
+    public static String makeShortTimeString(final Context context, long secs) {
         long hours, mins;
 
         hours = secs / 3600;
@@ -233,7 +234,7 @@ public class Utils {
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 ContactsModel contactsModel = new ContactsModel(cursor.getString(2),
-                        cursor.getString(0));
+                        cursor.getString(0),(cursor.getString(1)));
                 contactsModels.add(contactsModel);
             } while (cursor.moveToNext());
         }
@@ -292,6 +293,5 @@ public class Utils {
         }
         return true;
     }
-
 
 }

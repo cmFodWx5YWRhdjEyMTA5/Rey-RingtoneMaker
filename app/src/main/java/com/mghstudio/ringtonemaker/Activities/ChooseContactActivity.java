@@ -82,7 +82,8 @@ public class ChooseContactActivity extends AppCompatActivity implements SearchVi
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_search, menu);
-        mSearchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.menu_search));
+        MenuItem search = menu.findItem(R.id.menu_search);
+        mSearchView = (SearchView) search.getActionView();
 
         mSearchView.setOnQueryTextListener(this);
         mSearchView.setQueryHint(getString(R.string.search_library));
@@ -90,20 +91,21 @@ public class ChooseContactActivity extends AppCompatActivity implements SearchVi
         mSearchView.setIconifiedByDefault(false);
         mSearchView.setIconified(false);
 
-        MenuItemCompat.setOnActionExpandListener(menu.findItem(R.id.menu_search), new MenuItemCompat.OnActionExpandListener() {
+        MenuItem menuItem = menu.findItem(R.id.menu_search);
+        menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
+            public boolean onMenuItemActionExpand(MenuItem menuItem) {
                 return true;
             }
 
             @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
+            public boolean onMenuItemActionCollapse(MenuItem menuItem) {
                 finish();
                 return false;
             }
         });
 
-        menu.findItem(R.id.menu_search).expandActionView();
+        menuItem.expandActionView();
         return super.onCreateOptionsMenu(menu);
     }
 

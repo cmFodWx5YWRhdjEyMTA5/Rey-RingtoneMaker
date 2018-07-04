@@ -47,13 +47,13 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ItemHolder> 
         holder.mSongName.setText(mData.get(position).mSongsName);
         holder.mArtistName.setText(mData.get(position).mArtistName);
 
-//        ImageLoader.getInstance().displayImage(Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString(),
-//                holder.mSongsImage,
-//                new DisplayImageOptions.Builder().cacheInMemory(true)
-//                        .showImageOnFail(R.drawable.default_art)
-//                        .showImageOnLoading(R.drawable.default_art)
-//                        .resetViewBeforeLoading(true)
-//                        .build());
+        ImageLoader.getInstance().displayImage(Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString(),
+                holder.mSongsImage,
+                new DisplayImageOptions.Builder().cacheInMemory(true)
+                        .showImageOnFail(R.drawable.default_art)
+                        .showImageOnLoading(R.drawable.default_art)
+                        .resetViewBeforeLoading(true)
+                        .build());
     }
 
     @Override
@@ -85,11 +85,11 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ItemHolder> 
 
         public ItemHolder(View itemView) {
             super(itemView);
-            mSongsImage = (ImageView) itemView.findViewById(R.id.album_art_image_view);
-            mSongName = (TextView) itemView.findViewById(R.id.song_name);
-            mArtistName = (TextView) itemView.findViewById(R.id.artist_name);
-            mDuration = (TextView) itemView.findViewById(R.id.song_duration);
-            mPopUpMenu = (ImageView) itemView.findViewById(R.id.overflow);
+            mSongsImage = itemView.findViewById(R.id.album_art_image_view);
+            mSongName = itemView.findViewById(R.id.song_name);
+            mArtistName = itemView.findViewById(R.id.artist_name);
+            mDuration = itemView.findViewById(R.id.song_duration);
+            mPopUpMenu = itemView.findViewById(R.id.overflow);
             mPopUpMenu.setOnClickListener(this);
             itemView.setOnClickListener(this);
         }
