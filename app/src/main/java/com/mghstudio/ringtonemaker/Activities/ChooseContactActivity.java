@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract.Contacts;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -60,18 +59,19 @@ public class ChooseContactActivity extends AppCompatActivity implements SearchVi
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         Intent intent = getIntent();
-        mRingtoneUri = Uri.parse(intent.getExtras().getString(Constants.FILE_NAME));
+        if (intent.getExtras() != null)
+            mRingtoneUri = Uri.parse(intent.getExtras().getString(Constants.FILE_NAME));
 
         setContentView(R.layout.choose_contact);
 
         mData = new ArrayList<>();
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle(R.string.contacts);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        mRecyclerView = findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         mData = Utils.getContacts(this, "");
         mContactsAdapter = new ContactsAdapter(this, mData);

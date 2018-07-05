@@ -23,5 +23,5 @@
         android:key="ABOUT">
     </Preference>
 
-    <com.mghstudio.ringtonemaker android:layout="@layout/ad_layout" />
+    <com.mghstudio.ringtonemaker.Views.AdPreference android:layout="@layout/contact_ads" />
 </PreferenceScreen>

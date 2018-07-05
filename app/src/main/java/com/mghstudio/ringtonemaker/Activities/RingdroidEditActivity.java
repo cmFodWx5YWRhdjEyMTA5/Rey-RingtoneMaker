@@ -1473,8 +1473,8 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         try {
             Intent intent = new Intent(Intent.ACTION_EDIT, uri);
             intent.setClassName(
-                    "com.ringdroid",
-                    "com.ringdroid.ChooseContactActivity");
+                    "com.mghstudio.ringtonemaker",
+                    "com.mghstudio.ringtonemaker.Activities.ChooseContactActivity");
             startActivityForResult(intent, REQUEST_CODE_CHOOSE_CONTACT);
         } catch (Exception e) {
             Log.e("Ringdroid", "Couldn't open Choose Contact window");

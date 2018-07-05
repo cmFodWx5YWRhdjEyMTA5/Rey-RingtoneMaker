@@ -1,6 +1,7 @@
 package com.mghstudio.ringtonemaker.Activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -65,12 +66,19 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case 1:
-                        Intent i = new Intent(MainActivity.this, RingdroidSelectActivity.class);
-                        startActivity(i);
+                        if (Utils.checkAndRequestPermissions(MainActivity.this, true)) {
+                            Intent i = new Intent(MainActivity.this, RingdroidSelectActivity.class);
+                            startActivity(i);
+                        }
+
                         break;
                     case 2:
                         Intent j = new Intent(MainActivity.this, SettingsActivity.class);
                         startActivity(j);
+                        break;
+                    case 3:
+                        Intent a = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/developer?id=Mini+Apps+VN"));
+                        startActivity(a);
                 }
                 return;
             }

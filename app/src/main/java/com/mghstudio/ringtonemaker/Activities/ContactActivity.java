@@ -47,6 +47,8 @@ public class ContactActivity extends AppCompatActivity {
     String ringtoneName;
     private int checked = 0;
     private AdView adView;
+    private MediaPlayer md;
+    private boolean isClicked = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,7 +56,7 @@ public class ContactActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_contact);
 
-        adView = new AdView(this, "2199797023369826_2199798086703053", AdSize.BANNER_HEIGHT_50);
+        adView = new AdView(this, "2199797023369826_2269185393097655", AdSize.BANNER_HEIGHT_50);
 
         // Find the Ad Container
         RelativeLayout adContainer = findViewById(R.id.baner2);
@@ -197,12 +199,14 @@ public class ContactActivity extends AppCompatActivity {
                 SharedPreferences pres = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 stringUri = pres.getString(ringtoneName, null);
                 if (stringUri != null) {
-
                     mRingtoneUri = Uri.parse(stringUri);
-                    MediaPlayer md = MediaPlayer.create(getApplicationContext(), mRingtoneUri);
+                    if (isClicked && md != null) {
+                        md.release();
+                    }
+                    md = MediaPlayer.create(getApplicationContext(), mRingtoneUri);
                     md.start();
-//                Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), mRingtoneUri);
-//                r.play();
+                    isClicked = true;
+
                 }
 
             }
@@ -228,33 +232,30 @@ public class ContactActivity extends AppCompatActivity {
                 values.put(ContactsContract.Contacts.CUSTOM_RINGTONE, mRingtoneUri.toString());
                 getContentResolver().update(uri, values, null, null);
 
+                if (md != null) {
+                    md.release();
+                    isClicked = false;
+                }
+
+
                 //reload data in recyclerview
                 mContactsAdapter.updateData(getContacts(getApplication()));
                 mContactsAdapter.notifyDataSetChanged();
             }
         });
-        builder.setNegativeButton("Cancel", null);
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (md != null) {
+                    md.release();
+                    isClicked = false;
+                }
+            }
+        });
         mContactsAdapter.notifyDataSetChanged();
 
 // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();
-
-        /*ContactsModel contactsModel = mData.get(adapterPosition);
-
-        Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, contactsModel.mContactId);
-
-        ContentValues values = new ContentValues();
-//        values.put(ContactsContract.Contacts.CUSTOM_RINGTONE, mRingtoneUri.toString());
-        getContentResolver().update(uri, values, null, null);
-
-        String message =
-                getResources().getText(R.string.success_contact_ringtone) +
-                        " " +
-                        contactsModel.mName;
-
-        Toast.makeText(this, message, Toast.LENGTH_SHORT)
-                .show();
-        finish();*/
     }
 }

@@ -257,6 +257,7 @@ public class Utils {
     public static boolean checkAndRequestPermissions(Activity activity, boolean ask) {
         int modifyAudioPermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
         int readContact = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS);
+        int writeSettings = ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_SETTINGS);
         List<String> listPermissionsNeeded = new ArrayList<>();
 
         if (modifyAudioPermission != PackageManager.PERMISSION_GRANTED) {
@@ -266,6 +267,9 @@ public class Utils {
         if (readContact != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.READ_CONTACTS);
         }
+//        if (writeSettings != PackageManager.PERMISSION_GRANTED) {
+//            listPermissionsNeeded.add(Manifest.permission.WRITE_SETTINGS);
+//        }
 
         if (!listPermissionsNeeded.isEmpty()) {
             if (ask) {

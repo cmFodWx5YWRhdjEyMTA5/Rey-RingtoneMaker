@@ -106,16 +106,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        adView = new AdView(this, "2199797023369826_2199798086703053", AdSize.BANNER_HEIGHT_50);
 
-        // Find the Ad Container
-        RelativeLayout adContainer = findViewById(R.id.baner1);
-
-        // Add the ad view to your activity layout
-        adContainer.addView(adView);
-
-        // Request an ad
-        adView.loadAd();
 
         mContext = getApplicationContext();
         String status = Environment.getExternalStorageState();
@@ -135,8 +126,19 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
 
         // Inflate our UI from its XML layout description.
         setContentView(R.layout.media_select);
-        mPermissionLayout = findViewById(R.id.permission_message_layout);
-        mAllowButton = findViewById(R.id.button_allow);
+
+        adView = new AdView(this, "2199797023369826_2199798086703053", AdSize.BANNER_HEIGHT_50);
+
+        // Find the Ad Container
+        RelativeLayout adContainer = findViewById(R.id.baner1);
+
+        // Add the ad view to your activity layout
+        adContainer.addView(adView);
+
+        // Request an ad
+        adView.loadAd();
+//        mPermissionLayout = findViewById(R.id.permission_message_layout);
+//        mAllowButton = findViewById(R.id.button_allow);
 
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -163,18 +165,18 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
 
         Utils.initImageLoader(mContext);
 
-        mAllowButton.setOnClickListener(new View.OnClickListener() {
+        /*mAllowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Utils.checkAndRequestPermissions(RingdroidSelectActivity.this, true);
             }
-        });
+        });*/
 
         if (Utils.checkAndRequestPermissions(this, false)) {
             loadData();
         } else {
             mFastScroller.setVisibility(View.GONE);
-            mPermissionLayout.setVisibility(View.VISIBLE);
+//            mPermissionLayout.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.GONE);
         }
     }
@@ -193,7 +195,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
                     if (perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                         loadData();
                         mFastScroller.setVisibility(View.VISIBLE);
-                        mPermissionLayout.setVisibility(View.GONE);
+//                        mPermissionLayout.setVisibility(View.GONE);
                         mRecyclerView.setVisibility(View.VISIBLE);
                         invalidateOptionsMenu();
                     }
