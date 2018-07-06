@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +14,9 @@ import android.widget.TextView;
 import com.mghstudio.ringtonemaker.Activities.RingdroidSelectActivity;
 import com.mghstudio.ringtonemaker.Models.SongsModel;
 import com.mghstudio.ringtonemaker.R;
+import com.mghstudio.ringtonemaker.Ringdroid.Constants;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.mghstudio.ringtonemaker.Views.BubbleTextGetter;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -51,22 +49,19 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ItemHolder> 
 
         holder.mSongName.setText(mData.get(position).mSongsName);
         holder.mArtistName.setText(mData.get(position).mArtistName);
-        Log.d("tuanvn", Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString());
-        try {
-            Uri newUri = Uri.parse(getRealPathFromURI(mRingdroidSelectActivity, Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId))));
-            //Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString()
+        if (mData.get(position).mFileType.equalsIgnoreCase(Constants.IS_MUSIC)) {
+            holder.mSongsImage.setImageResource(R.drawable.default_art);
 
-            ImageLoader.getInstance().displayImage(newUri.toString(),
-                    holder.mSongsImage,
-                    new DisplayImageOptions.Builder().cacheInMemory(true)
-                            .showImageOnFail(R.drawable.default_art)
-                            .showImageOnLoading(R.drawable.default_art)
-                            .resetViewBeforeLoading(true)
-                            .build());
-        } catch (Exception e) {
-
+        } else {
+            holder.mSongsImage.setImageResource(R.drawable.bell_50);
         }
-
+//            ImageLoader.getInstance().displayImage(Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString(),
+//                    holder.mSongsImage,
+//                    new DisplayImageOptions.Builder().cacheInMemory(true)
+//                            .showImageOnFail(R.drawable.default_art)
+//                            .showImageOnLoading(R.drawable.default_art)
+//                            .resetViewBeforeLoading(true)
+//                            .build());
     }
 
     public String getRealPathFromURI(Context context, Uri contentUri) {

@@ -1228,6 +1228,8 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                 try {
                     // Write the new file
                     mSoundFile.WriteFile(outFile, startFrame, endFrame - startFrame);
+                    Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(outFile));//( ,outputFile.toURI());
+                    mContext.sendBroadcast(mediaScanIntent);
                 } catch (Exception e) {
                     // log the error and try to create a .wav file instead
                     if (outFile.exists()) {

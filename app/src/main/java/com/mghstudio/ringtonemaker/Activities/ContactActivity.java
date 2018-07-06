@@ -46,7 +46,7 @@ public class ContactActivity extends AppCompatActivity {
     String stringUri;
     String ringtoneName;
     private int checked = 0;
-    private AdView adView;
+
     private MediaPlayer md;
     private boolean isClicked = false;
 
@@ -55,6 +55,7 @@ public class ContactActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_contact);
+        AdView adView;
 
         adView = new AdView(this, "2199797023369826_2269185393097655", AdSize.BANNER_HEIGHT_50);
 
@@ -181,9 +182,6 @@ public class ContactActivity extends AppCompatActivity {
         list.toArray(animals);
         String tempRing = mContactsAdapter.getItem(adapterPosition).mRingtone;
 
-
-//         = pres.getString(tempRing, null);
-
         int temChecked = 0;
         for (int i = 0; i < list.size(); i++)
             if (tempRing.equalsIgnoreCase(list.get(i)))
@@ -258,4 +256,6 @@ public class ContactActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+
 }

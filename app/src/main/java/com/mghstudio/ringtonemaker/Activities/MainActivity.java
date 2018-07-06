@@ -1,8 +1,11 @@
 package com.mghstudio.ringtonemaker.Activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,6 +18,12 @@ import com.facebook.ads.AdView;
 import com.mghstudio.ringtonemaker.Adapters.CellAdapter;
 import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_MULTIPLE_PERMISSIONS;
+import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_READ_CONTACTS_PERMISSION;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,6 +39,41 @@ public class MainActivity extends AppCompatActivity {
             adView.destroy();
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_ID_READ_CONTACTS_PERMISSION: {
+                Map<String, Integer> perms = new HashMap<>();
+                perms.put(Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < permissions.length; i++)
+                        perms.put(permissions[i], grantResults[i]);
+                    if (perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        Intent contact = new Intent(getApplicationContext(), ContactActivity.class);
+                        startActivity(contact);
+                    }
+                }
+                break;
+            }
+
+            case REQUEST_ID_MULTIPLE_PERMISSIONS: {
+                Map<String, Integer> perms = new HashMap<>();
+                perms.put(Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < permissions.length; i++)
+                        perms.put(permissions[i], grantResults[i]);
+                    if (perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        Intent select = new Intent(getApplicationContext(), RingdroidSelectActivity.class);
+                        startActivity(select);
+                    }
+                }
+                break;
+            }
+        }
     }
 
     @Override
@@ -59,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 0:
-                        if (Utils.checkAndRequestPermissions(MainActivity.this, true)) {
+                        if (Utils.checkAndRequestContactsPermissions(MainActivity.this)) {
                             Intent contact = new Intent(MainActivity.this, ContactActivity.class);
                             startActivity(contact);
 

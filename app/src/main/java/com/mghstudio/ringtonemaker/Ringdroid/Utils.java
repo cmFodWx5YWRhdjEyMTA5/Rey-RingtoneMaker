@@ -261,19 +261,11 @@ public class Utils {
     public static boolean checkAndRequestPermissions(Activity activity, boolean ask) {
         int modifyAudioPermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
         int readContact = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS);
-        int writeSettings = ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_SETTINGS);
         List<String> listPermissionsNeeded = new ArrayList<>();
 
         if (modifyAudioPermission != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         }
-
-        if (readContact != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.READ_CONTACTS);
-        }
-//        if (writeSettings != PackageManager.PERMISSION_GRANTED) {
-//            listPermissionsNeeded.add(Manifest.permission.WRITE_SETTINGS);
-//        }
 
         if (!listPermissionsNeeded.isEmpty()) {
             if (ask) {
@@ -298,9 +290,20 @@ public class Utils {
     }
 
     public static boolean checkAndRequestContactsPermissions(Activity activity) {
-        int modifyAudioPermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS);
+        int contactPermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS);
+        int modifyAudioPermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        List<String> listPermissionsNeeded = new ArrayList<>();
+
         if (modifyAudioPermission != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_CONTACTS},
+            listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+
+        if (contactPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.READ_CONTACTS);
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(activity, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),
                     REQUEST_ID_READ_CONTACTS_PERMISSION);
             return false;
         }

@@ -59,12 +59,12 @@ import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.mghstudio.ringtonemaker.Views.FastScroller;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_MULTIPLE_PERMISSIONS;
 import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_READ_CONTACTS_PERMISSION;
 import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_RECORD_AUDIO_PERMISSION;
 
@@ -107,7 +107,6 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-
         mContext = getApplicationContext();
         String status = Environment.getExternalStorageState();
         if (status.equals(Environment.MEDIA_MOUNTED_READ_ONLY)) {
@@ -142,7 +141,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
 
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        if(getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
@@ -185,23 +184,6 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_ID_MULTIPLE_PERMISSIONS: {
-                Map<String, Integer> perms = new HashMap<>();
-                perms.put(Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
-
-                if (grantResults.length > 0) {
-                    for (int i = 0; i < permissions.length; i++)
-                        perms.put(permissions[i], grantResults[i]);
-                    if (perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        loadData();
-                        mFastScroller.setVisibility(View.VISIBLE);
-//                        mPermissionLayout.setVisibility(View.GONE);
-                        mRecyclerView.setVisibility(View.VISIBLE);
-                        invalidateOptionsMenu();
-                    }
-                }
-                break;
-            }
             case REQUEST_ID_RECORD_AUDIO_PERMISSION:
                 Map<String, Integer> perms = new HashMap<>();
                 perms.put(Manifest.permission.RECORD_AUDIO, PackageManager.PERMISSION_GRANTED);
@@ -228,7 +210,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     }
 
     private void loadData() {
-        mData.addAll(Utils.getSongList(getApplicationContext(), true, null));
+//        mData.addAll(Utils.getSongList(getApplicationContext(), true, null));
         mData.addAll(Utils.getSongList(getApplicationContext(), false, null));
         mSongsAdapter.updateData(mData);
     }
@@ -281,8 +263,32 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
             case android.R.id.home:
                 onBackPressed();
                 return true;
+            case R.id.scan:
+//                scanFile();
+                sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+                        Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+                return true;
             default:
                 return false;
+        }
+    }
+
+    private void scanFile() {
+        File folder_file = Environment.getExternalStorageDirectory();
+        File[] files = folder_file.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                // checking the File is file or directory
+                if (file.isFile()) {
+                    String path = file.getAbsolutePath();
+                    String extension = path
+                            .substring(path.lastIndexOf(".") + 1);
+                    // if the file is audio type, then save it to the database
+                    if (extension.equalsIgnoreCase("mp3")) {
+                        System.out.println(path + " is a media file ");
+                    }
+                }
+            }
         }
     }
 
