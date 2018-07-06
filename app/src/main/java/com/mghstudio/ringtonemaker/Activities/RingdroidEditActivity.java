@@ -511,7 +511,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         setContentView(R.layout.editor);
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        if(getSupportActionBar() !=null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
@@ -1442,6 +1442,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                 int actionId = response.arg1;
                 switch (actionId) {
                     case R.id.button_make_default:
+                        if (!Utils.checkSystemWritePermission(RingdroidEditActivity.this)) return;
                         RingtoneManager.setActualDefaultRingtoneUri(
                                 RingdroidEditActivity.this,
                                 RingtoneManager.TYPE_RINGTONE,

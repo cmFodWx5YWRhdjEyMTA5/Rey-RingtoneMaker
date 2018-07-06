@@ -144,6 +144,10 @@ public class Utils {
         return ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), paramInt);
     }
 
+    public static String getAlbumArtUriString(long paramInt) {
+        return "content://media/external/audio/albumart" + paramInt;
+    }
+
 
     public static String makeShortTimeString(final Context context, long secs) {
         long hours, mins;

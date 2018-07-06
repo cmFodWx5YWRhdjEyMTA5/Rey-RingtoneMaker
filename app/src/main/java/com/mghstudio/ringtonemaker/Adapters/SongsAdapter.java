@@ -1,6 +1,11 @@
 package com.mghstudio.ringtonemaker.Adapters;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,14 +51,37 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ItemHolder> 
 
         holder.mSongName.setText(mData.get(position).mSongsName);
         holder.mArtistName.setText(mData.get(position).mArtistName);
+        Log.d("tuanvn", Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString());
+        try {
+            Uri newUri = Uri.parse(getRealPathFromURI(mRingdroidSelectActivity, Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId))));
+            //Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString()
 
-        ImageLoader.getInstance().displayImage(Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString(),
-                holder.mSongsImage,
-                new DisplayImageOptions.Builder().cacheInMemory(true)
-                        .showImageOnFail(R.drawable.default_art)
-                        .showImageOnLoading(R.drawable.default_art)
-                        .resetViewBeforeLoading(true)
-                        .build());
+            ImageLoader.getInstance().displayImage(newUri.toString(),
+                    holder.mSongsImage,
+                    new DisplayImageOptions.Builder().cacheInMemory(true)
+                            .showImageOnFail(R.drawable.default_art)
+                            .showImageOnLoading(R.drawable.default_art)
+                            .resetViewBeforeLoading(true)
+                            .build());
+        } catch (Exception e) {
+
+        }
+
+    }
+
+    public String getRealPathFromURI(Context context, Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            String[] proj = {MediaStore.Images.Media.DATA};
+            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     @Override
