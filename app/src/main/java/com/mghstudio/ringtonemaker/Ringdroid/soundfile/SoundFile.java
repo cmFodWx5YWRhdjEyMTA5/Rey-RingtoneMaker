@@ -16,12 +16,15 @@
 
 package com.mghstudio.ringtonemaker.Ringdroid.soundfile;
 
+import android.app.Application;
+import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.support.annotation.RequiresApi;
@@ -243,7 +246,8 @@ public class SoundFile {
         // For longer streams, the buffer size will be increased later on, calculating a rough
         // estimate of the total size needed to store all the samples in order to resize the buffer
         // only once.
-        mDecodedBytes = ByteBuffer.allocate(1<<20);
+        mDecodedBytes = ByteBuffer.allocate(1000);
+
         Boolean firstSampleData = true;
         while (true) {
             // read data from file and feed it to the decoder input buffers.
@@ -302,8 +306,8 @@ public class SoundFile {
                     // make sure to allocate at least 5MB more than the initial size.
                     int position = mDecodedBytes.position();
                     int newSize = (int)((position * (1.0 * mFileSize / tot_size_read)) * 1.2);
-                    if (newSize - position < info.size + 5 * (1<<20)) {
-                        newSize = position + info.size + 5 * (1<<20);
+                    if (newSize - position < info.size + 5 * (1000)) {
+                        newSize = position + info.size + 5 * (1000);
                     }
                     ByteBuffer newDecodedBytes = null;
                     // Try to allocate memory. If we are OOM, try to run the garbage collector.
@@ -352,6 +356,7 @@ public class SoundFile {
                 break;
             }
         }
+
         mNumSamples = mDecodedBytes.position() / (mChannels * 2);  // One sample = 2 bytes.
         mDecodedBytes.rewind();
         mDecodedBytes.order(ByteOrder.LITTLE_ENDIAN);
@@ -639,6 +644,8 @@ public class SoundFile {
                 outputStream.write(buffer, 0, remaining);
             }
             outputStream.close();
+
+
         } catch (IOException e) {
             Log.e("Ringdroid", "Failed to create the .m4a file.");
             Log.e("Ringdroid", getStackTrace(e));

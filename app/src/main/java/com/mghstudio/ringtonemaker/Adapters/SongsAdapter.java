@@ -2,6 +2,8 @@ package com.mghstudio.ringtonemaker.Adapters;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
@@ -15,11 +17,16 @@ import android.widget.TextView;
 import com.mghstudio.ringtonemaker.Activities.RingdroidSelectActivity;
 import com.mghstudio.ringtonemaker.Models.SongsModel;
 import com.mghstudio.ringtonemaker.R;
+import com.mghstudio.ringtonemaker.Ringdroid.Constants;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.mghstudio.ringtonemaker.Views.BubbleTextGetter;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
@@ -43,7 +50,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ItemHolder> 
     }
 
     @Override
-    public void onBindViewHolder(SongsAdapter.ItemHolder holder, int position) {
+    public void onBindViewHolder(final SongsAdapter.ItemHolder holder, int position) {
 
         holder.mDuration.setText(Utils.makeShortTimeString(mRingdroidSelectActivity.getApplicationContext(),
                 Integer.parseInt(mData.get(position).mDuration) / 1000));
@@ -51,21 +58,38 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ItemHolder> 
 
         holder.mSongName.setText(mData.get(position).mSongsName);
         holder.mArtistName.setText(mData.get(position).mArtistName);
-        Log.d("tuanvn", Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString());
-        try {
-            Uri newUri = Uri.parse(getRealPathFromURI(mRingdroidSelectActivity, Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId))));
-            //Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString()
 
-            ImageLoader.getInstance().displayImage(newUri.toString(),
-                    holder.mSongsImage,
-                    new DisplayImageOptions.Builder().cacheInMemory(true)
-                            .showImageOnFail(R.drawable.default_art)
-                            .showImageOnLoading(R.drawable.default_art)
-                            .resetViewBeforeLoading(true)
-                            .build());
-        } catch (Exception e) {
+//            Uri newUri = Uri.parse(getRealPathFromURI(mRingdroidSelectActivity, Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId))));
+        //Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString()
+//                holder.mSongsImage.setImageURI(Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)));
+//                InputStream inputStream = mRingdroidSelectActivity.getContentResolver().openInputStream(Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)));
+//                Bitmap bmp = BitmapFactory.decodeStream(inputStream);
+//                if( inputStream != null ) inputStream.close();
+//                holder.mSongsImage.setImageBitmap(bmp);
+//                Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId));
+        Log.d("caomui", Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString());
+        ImageLoader.getInstance().displayImage(Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString(),
+                holder.mSongsImage,
+                new DisplayImageOptions.Builder().cacheInMemory(true)
+                        .showImageOnFail(R.drawable.default_art)
+                        .showImageOnLoading(R.drawable.default_art)
+                        .resetViewBeforeLoading(true)
+                        .build());
 
-        }
+
+//                ImageLoader.getInstance().loadImage(Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString(),new SimpleImageLoadingListener() {
+//                            @Override
+//                            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+//                                holder.mSongsImage.setImageBitmap(loadedImage);
+//                            }
+//
+//                            @Override
+//                            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+//                                // Empty implementation
+//                                holder.mSongsImage.setImageResource(R.drawable.default_art);
+//                            }
+//                        }
+//                    );
 
     }
 
@@ -100,7 +124,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ItemHolder> 
     }
 
     public void updateData(ArrayList<SongsModel> data) {
-        this.mData=data;
+        this.mData = data;
         notifyDataSetChanged();
     }
 

@@ -92,9 +92,10 @@ public class Utils {
             CONTENT_URI = MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
             COLUMNS = INTERNAL_COLUMNS;
         } else {
-            CONTENT_URI = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            CONTENT_URI =  MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
             COLUMNS = EXTERNAL_COLUMNS;
         }
+//        context.getContentResolver().q
         Cursor cursor = context.getContentResolver().query(
                 CONTENT_URI,
                 COLUMNS,
