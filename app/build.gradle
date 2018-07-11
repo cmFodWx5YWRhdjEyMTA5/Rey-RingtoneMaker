@@ -37,5 +37,6 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'io.github.kobakei:ratethisapp:1.2.0'
     implementation 'com.facebook.android:audience-network-sdk:4.99.0'
+    implementation 'com.google.android.gms:play-services-ads:15.0.0'
     testImplementation 'junit:junit:4.12'
 }

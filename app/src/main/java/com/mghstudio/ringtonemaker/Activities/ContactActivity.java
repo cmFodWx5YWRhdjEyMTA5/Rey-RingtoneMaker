@@ -42,7 +42,7 @@ public class ContactActivity extends AppCompatActivity {
     private AllContactsAdapter mContactsAdapter;
     private ArrayList<ContactsModel> mData;
     Uri mRingtoneUri;
-    ArrayList<String> list;
+    ArrayList<String> list = new ArrayList<>();
     String stringUri;
     String ringtoneName;
     private int checked = 0;
@@ -176,9 +176,10 @@ public class ContactActivity extends AppCompatActivity {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(ContactActivity.this);
         builder.setTitle("Choose a Ringtone");
-
-        list = getListRingtones();
-        String[] animals = new String[list.size()];
+        String defaultRingtone = "Default ringtone";
+        list.add(defaultRingtone);
+        list.addAll(getListRingtones());
+        String[] animals = new String[list.size() + 1];
         list.toArray(animals);
         String tempRing = mContactsAdapter.getItem(adapterPosition).mRingtone;
 
@@ -195,17 +196,28 @@ public class ContactActivity extends AppCompatActivity {
                 checked = which;
                 ringtoneName = list.get(which);
                 SharedPreferences pres = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                stringUri = pres.getString(ringtoneName, null);
-                if (stringUri != null) {
-                    mRingtoneUri = Uri.parse(stringUri);
+                if (which == 0) {
+                    mRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(ContactActivity.this, RingtoneManager.TYPE_RINGTONE);
                     if (isClicked && md != null) {
                         md.release();
                     }
                     md = MediaPlayer.create(getApplicationContext(), mRingtoneUri);
                     md.start();
                     isClicked = true;
+                } else {
+                    stringUri = pres.getString(ringtoneName, null);
+                    if (stringUri != null) {
+                        mRingtoneUri = Uri.parse(stringUri);
+                        if (isClicked && md != null) {
+                            md.release();
+                        }
+                        md = MediaPlayer.create(getApplicationContext(), mRingtoneUri);
+                        md.start();
+                        isClicked = true;
 
+                    }
                 }
+
 
             }
         });

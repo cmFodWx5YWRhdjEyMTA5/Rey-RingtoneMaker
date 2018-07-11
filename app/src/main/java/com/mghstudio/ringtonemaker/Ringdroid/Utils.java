@@ -77,7 +77,7 @@ public class Utils {
     public static ArrayList<SongsModel> getSongList(Context context, boolean internal, String searchString) {
 
         String[] selectionArgs = null;
-        String selection = null;
+        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         if (searchString != null && searchString.length() > 0) {
             selection = "title LIKE ?";
 //            selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";

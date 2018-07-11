@@ -1469,6 +1469,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         Message message = Message.obtain(handler);
         AfterSaveActionDialog dlog = new AfterSaveActionDialog(
                 this, message);
+        dlog.setCanceledOnTouchOutside(false);
         dlog.show();
     }
 
@@ -1499,6 +1500,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         Message message = Message.obtain(handler);
         FileSaveDialog dlog = new FileSaveDialog(
                 this, getResources(), mTitle, message);
+        dlog.setCanceledOnTouchOutside(false);
         dlog.show();
     }
 

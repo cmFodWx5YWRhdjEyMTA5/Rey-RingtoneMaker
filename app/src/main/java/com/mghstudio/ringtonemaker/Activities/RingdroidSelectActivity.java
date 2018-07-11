@@ -263,11 +263,20 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
             case android.R.id.home:
                 onBackPressed();
                 return true;
-            case R.id.scan:
+//            case R.id.scan:
 //                scanFile();
-                sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-                        Uri.parse("file://" + Environment.getExternalStorageDirectory())));
-                return true;
+
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//                    final Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+//                    final Uri contentUri = Uri.fromFile(outputFile);
+//                    scanIntent.setData(contentUri);
+//                    sendBroadcast(scanIntent);
+//                } else {
+//                    final Intent intent = new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory()));
+//                    sendBroadcast(intent);
+//                }
+//                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+//                return true;
             default:
                 return false;
         }
@@ -407,7 +416,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     }
 
 
-    private boolean chooseContactForRingtone(int pos) {
+    private void chooseContactForRingtone(int pos) {
 
         Intent intent = new Intent(RingdroidSelectActivity.this, ChooseContactActivity.class);
         if (mData.get(pos).mFileType.equalsIgnoreCase(Constants.IS_RINGTONE)) {
@@ -419,7 +428,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
         }
         startActivity(intent);
 
-        return true;
+//        return true;
     }
 
     private void confirmDelete(int pos) {

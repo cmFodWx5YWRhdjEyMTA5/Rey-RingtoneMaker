@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private GridView gridView;
     private AdView adView;
 
+
     private static final String[] items = new String[]{
             "Contacts", "Ringtone", "Settings", "More"};
 
@@ -76,9 +77,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Intent myIntent = new Intent(MainActivity.this, runningService.class);
+        this.startService(myIntent);
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
         setContentView(R.layout.activity_main);

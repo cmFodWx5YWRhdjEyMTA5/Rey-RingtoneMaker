@@ -15,9 +15,9 @@
         android:title="@string/button_start_record_activity"
         app:showAsAction="always|collapseActionView" />
 
-    <item
-        android:id="@+id/scan"
-        android:icon="@drawable/reload_24"
-        android:title="@string/button_start_record_activity"
-        app:showAsAction="always|collapseActionView" />
+    <!-- <item
+         android:id="@+id/scan"
+         android:icon="@drawable/reload_24"
+         android:title="@string/button_start_record_activity"
+         app:showAsAction="always|collapseActionView" />-->
 </menu>
