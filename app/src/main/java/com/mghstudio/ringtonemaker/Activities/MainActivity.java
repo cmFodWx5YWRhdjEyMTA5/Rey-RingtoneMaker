@@ -1,10 +1,15 @@
 package com.mghstudio.ringtonemaker.Activities;
 
 import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.AppOpsManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -77,11 +82,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    void requestUsageStatsPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                && !hasUsageStatsPermission(this)) {
+            startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    boolean hasUsageStatsPermission(Context context) {
+        AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+        int mode = appOps.checkOpNoThrow("android:get_usage_stats",
+                android.os.Process.myUid(), context.getPackageName());
+        boolean granted = mode == AppOpsManager.MODE_ALLOWED;
+        return granted;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        requestUsageStatsPermission();
         Intent myIntent = new Intent(MainActivity.this, runningService.class);
         this.startService(myIntent);
         if (getSupportActionBar() != null)

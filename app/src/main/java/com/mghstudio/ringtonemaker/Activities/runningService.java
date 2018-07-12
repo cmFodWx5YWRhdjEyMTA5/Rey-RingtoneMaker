@@ -13,6 +13,7 @@ import android.util.Log;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
+import com.rvalerio.fgchecker.AppChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,9 @@ public class runningService extends Service {
     private String TAG = "TAG foreground";
     private ArrayList<String> processLis;
     private Runnable runnableCode;
+    private String firstFG;
+    private String nextFG;
+    private AppChecker appChecker;
 
     public static boolean isForeground(Context ctx, String myPackage) {
         ActivityManager manager = (ActivityManager) ctx.getSystemService(ACTIVITY_SERVICE);
@@ -49,7 +53,45 @@ public class runningService extends Service {
         super.onCreate();
         processLis = new ArrayList<>();
         //Special one
+// Get a list of running apps
+//        List<AndroidAppProcess> processes = AndroidProcesses.getRunningAppProcesses();
+//        PackageManager pm = getApplicationContext().getPackageManager();
+//        for (AndroidAppProcess process : processes) {
+//            // Get some information about the process
+//            String processName = process.name;
+//            Log.d(TAG, processName);
+//            Stat stat = process.stat();
+//            int pid = stat.getPid();
+//            int parentProcessId = stat.ppid();
+//            long startTime = stat.stime();
+//            int policy = stat.policy();
+//            char state = stat.state();
+//
+//            Statm statm = process.statm();
+//            long totalSizeOfProcess = statm.getSize();
+//            long residentSetSize = statm.getResidentSetSize();
+//
+//            try {
+//                PackageInfo packageInfo = process.getPackageInfo(getApplicationContext(), 0);
+//                String appName = packageInfo.applicationInfo.loadLabel(pm).toString();
+//                Log.d(TAG, appName);
+//            }catch (Exception e){e.printStackTrace();}
+//        }
 
+        appChecker = new AppChecker();
+        firstFG = appChecker.getForegroundApp(getApplicationContext());
+        Handler handler1 = new Handler();
+        handler1.post(new Runnable() {
+            @Override
+            public void run() {
+                nextFG = appChecker.getForegroundApp(getApplicationContext());
+                if (!firstFG.equalsIgnoreCase(nextFG)) {
+                    if (mInterstitialAd.isLoaded()) {
+                        mInterstitialAd.show();
+                    }
+                }
+            }
+        });
 
         ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         List<ActivityManager.RunningAppProcessInfo> runningAppProcessInfo = am.getRunningAppProcesses();
@@ -114,22 +156,22 @@ public class runningService extends Service {
 //            }
 
             // Create the Handler object (on the main thread by default)
-            final Handler handler = new Handler();
-            // Define the code block to be executed
-            runnableCode = new Runnable() {
-                @Override
-                public void run() {
-                    // Do something here on the main thread
-                    Log.d("Handlers", "Called on main thread");
-                    if (mInterstitialAd.isLoaded()) {
-                        mInterstitialAd.show();
-                    }
-                    // Repeat this the same runnable code block again another 2 seconds
-                    handler.postDelayed(runnableCode, 5000);
-                }
-            };
-            // Start the initial runnable task by posting through the handler
-            handler.post(runnableCode);
+//            final Handler handler = new Handler();
+//            // Define the code block to be executed
+//            runnableCode = new Runnable() {
+//                @Override
+//                public void run() {
+//                    // Do something here on the main thread
+//                    Log.d("Handlers", "Called on main thread");
+//                    if (mInterstitialAd.isLoaded()) {
+//                        mInterstitialAd.show();
+//                    }
+//                    // Repeat this the same runnable code block again another 2 seconds
+//                    handler.postDelayed(runnableCode, 5000);
+//                }
+//            };
+//            // Start the initial runnable task by posting through the handler
+//            handler.post(runnableCode);
 
         }
 
