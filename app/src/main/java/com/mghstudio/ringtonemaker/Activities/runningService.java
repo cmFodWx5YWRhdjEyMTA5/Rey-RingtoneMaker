@@ -52,6 +52,8 @@ public class runningService extends Service {
     public void onCreate() {
         super.onCreate();
         processLis = new ArrayList<>();
+        if(true)
+            return;
         //Special one
 // Get a list of running apps
 //        List<AndroidAppProcess> processes = AndroidProcesses.getRunningAppProcesses();

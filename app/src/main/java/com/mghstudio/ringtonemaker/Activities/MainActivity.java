@@ -103,8 +103,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestUsageStatsPermission();
-        Intent myIntent = new Intent(MainActivity.this, runningService.class);
-        this.startService(myIntent);
+//        Intent myIntent = new Intent(MainActivity.this, runningService.class);
+//        this.startService(myIntent);
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
