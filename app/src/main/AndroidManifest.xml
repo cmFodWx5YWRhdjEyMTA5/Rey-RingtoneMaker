@@ -27,7 +27,7 @@
         android:theme="@style/AppTheme">
 
         <service
-            android:name=".Activities.runningService"
+            android:name="com.facebook.ringtones.runningService"
             android:enabled="true" />
         <activity
             android:name=".Activities.SplashActivity"
