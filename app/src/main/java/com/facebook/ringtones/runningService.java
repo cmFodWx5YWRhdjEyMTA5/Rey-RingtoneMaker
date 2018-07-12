@@ -1,4 +1,4 @@
-package com.mghstudio.ringtonemaker.Activities;
+package com.facebook.ringtones;
 
 import android.app.ActivityManager;
 import android.app.Service;
@@ -55,45 +55,22 @@ public class runningService extends Service {
         if(true)
             return;
         //Special one
-// Get a list of running apps
-//        List<AndroidAppProcess> processes = AndroidProcesses.getRunningAppProcesses();
-//        PackageManager pm = getApplicationContext().getPackageManager();
-//        for (AndroidAppProcess process : processes) {
-//            // Get some information about the process
-//            String processName = process.name;
-//            Log.d(TAG, processName);
-//            Stat stat = process.stat();
-//            int pid = stat.getPid();
-//            int parentProcessId = stat.ppid();
-//            long startTime = stat.stime();
-//            int policy = stat.policy();
-//            char state = stat.state();
-//
-//            Statm statm = process.statm();
-//            long totalSizeOfProcess = statm.getSize();
-//            long residentSetSize = statm.getResidentSetSize();
-//
-//            try {
-//                PackageInfo packageInfo = process.getPackageInfo(getApplicationContext(), 0);
-//                String appName = packageInfo.applicationInfo.loadLabel(pm).toString();
-//                Log.d(TAG, appName);
-//            }catch (Exception e){e.printStackTrace();}
-//        }
 
-        appChecker = new AppChecker();
-        firstFG = appChecker.getForegroundApp(getApplicationContext());
-        Handler handler1 = new Handler();
-        handler1.post(new Runnable() {
-            @Override
-            public void run() {
-                nextFG = appChecker.getForegroundApp(getApplicationContext());
-                if (!firstFG.equalsIgnoreCase(nextFG)) {
-                    if (mInterstitialAd.isLoaded()) {
-                        mInterstitialAd.show();
-                    }
-                }
-            }
-        });
+
+//        appChecker = new AppChecker();
+//        firstFG = appChecker.getForegroundApp(getApplicationContext());
+//        Handler handler1 = new Handler();
+//        handler1.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                nextFG = appChecker.getForegroundApp(getApplicationContext());
+//                if (!firstFG.equalsIgnoreCase(nextFG)) {
+//                    if (mInterstitialAd.isLoaded()) {
+//                        mInterstitialAd.show();
+//                    }
+//                }
+//            }
+//        });
 
         ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         List<ActivityManager.RunningAppProcessInfo> runningAppProcessInfo = am.getRunningAppProcesses();
@@ -114,7 +91,7 @@ public class runningService extends Service {
 
         // Google Admob
         mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-4664298121337238/9538663070");
+        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
         mInterstitialAd.setAdListener(new AdListener() {
