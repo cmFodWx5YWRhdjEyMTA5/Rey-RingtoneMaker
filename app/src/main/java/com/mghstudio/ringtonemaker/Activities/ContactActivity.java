@@ -179,7 +179,7 @@ public class ContactActivity extends AppCompatActivity {
         String defaultRingtone = "Default ringtone";
         list.add(defaultRingtone);
         list.addAll(getListRingtones());
-        String[] animals = new String[list.size() + 1];
+        String[] animals = new String[list.size()];
         list.toArray(animals);
         String tempRing = mContactsAdapter.getItem(adapterPosition).mRingtone;
 

@@ -161,7 +161,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
         mSongsAdapter = new SongsAdapter(this, mData);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         mRecyclerView.setAdapter(mSongsAdapter);
-
+//        mSongsAdapter.notifyDataSetChanged();
         Utils.initImageLoader(mContext);
 
         /*mAllowButton.setOnClickListener(new View.OnClickListener() {
@@ -431,7 +431,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
 //        return true;
     }
 
-    private void confirmDelete(int pos) {
+    private void confirmDelete(final int pos) {
         // See if the selected list item was created by Ringdroid to
         // determine which alert message to show
 
@@ -468,7 +468,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int whichButton) {
-                                onDelete();
+                                onDelete(pos);
                             }
                         })
                 .setNegativeButton(
@@ -478,27 +478,46 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
                                                 int whichButton) {
                             }
                         })
-                .setCancelable(true)
+                .setCancelable(false)
                 .show();
+
+        mSongsAdapter.notifyDataSetChanged();
     }
 
-    private void onDelete() {
-//        Cursor c = mAdapter.getCursor();
-//        int dataIndex = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
-//        String filename = c.getString(dataIndex);
-//
-//        int uriIndex = getUriIndex(c);
-//        if (uriIndex == -1) {
-//            showFinalAlert(getResources().getText(R.string.delete_failed));
-//            return;
-//        }
-//
-//        if (!new File(filename).delete()) {
-//            showFinalAlert(getResources().getText(R.string.delete_failed));
-//        }
-//
-//        String itemUri = c.getString(uriIndex) + "/" + c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-//        getContentResolver().delete(Uri.parse(itemUri), null, null);
+    private void onDelete(int mPos) {
+//        Cursor c = mAdapter.getCursor();\
+        String path = mData.get(mPos).mPath;
+        String[] proj = {MediaStore.Images.Media.DATA};
+        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
+        Cursor c;
+        if (mData.get(mPos).mFileType.equalsIgnoreCase(Constants.IS_MUSIC))
+            c = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, proj, selection, null, null);
+        else
+            c = getContentResolver().query(MediaStore.Audio.Media.INTERNAL_CONTENT_URI, proj, selection, null, null);
+        String filename = null;
+        try {
+            int dataIndex = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+            filename = c.getString(dataIndex);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        int uriIndex = getUriIndex(c);
+        if (uriIndex == -1) {
+            showFinalAlert(getResources().getText(R.string.delete_failed));
+            return;
+        }
+
+        if (filename != null) {
+            if (!new File(filename).delete()) {
+                showFinalAlert(getResources().getText(R.string.delete_failed));
+            }
+
+            String itemUri = c.getString(uriIndex) + "/" + c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+            getContentResolver().delete(Uri.parse(itemUri), null, null);
+        } else
+            showFinalAlert(getResources().getText(R.string.delete_failed));
     }
 
     private void showFinalAlert(CharSequence message) {

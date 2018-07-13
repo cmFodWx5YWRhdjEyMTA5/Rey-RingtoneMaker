@@ -101,6 +101,7 @@ public class Utils {
                 selection,
                 selectionArgs,
                 MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
+
         if (cursor != null && cursor.moveToFirst()) {
             do {
 

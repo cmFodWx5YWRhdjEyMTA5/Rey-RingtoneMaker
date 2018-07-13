@@ -72,6 +72,9 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ItemHolder> 
             int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
             cursor.moveToFirst();
             return cursor.getString(column_index);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         } finally {
             if (cursor != null) {
                 cursor.close();
