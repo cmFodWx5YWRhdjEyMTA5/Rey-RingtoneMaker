@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private static final String[] items = new String[]{
-            "Contacts", "Ringtone", "Settings", "More"};
+            "Contacts", "Ringtone", "Settings", "More apps"};
 
     @Override
     protected void onDestroy() {

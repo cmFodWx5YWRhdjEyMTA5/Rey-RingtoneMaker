@@ -210,7 +210,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     }
 
     private void loadData() {
-//        mData.addAll(Utils.getSongList(getApplicationContext(), true, null));
+        mData.addAll(Utils.getSongList(getApplicationContext(), true, null));
         mData.addAll(Utils.getSongList(getApplicationContext(), false, null));
         mSongsAdapter.updateData(mData);
     }

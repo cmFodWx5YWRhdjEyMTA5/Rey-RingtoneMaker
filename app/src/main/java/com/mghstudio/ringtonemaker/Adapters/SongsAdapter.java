@@ -50,10 +50,10 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ItemHolder> 
         holder.mSongName.setText(mData.get(position).mSongsName);
         holder.mArtistName.setText(mData.get(position).mArtistName);
         if (mData.get(position).mFileType.equalsIgnoreCase(Constants.IS_MUSIC)) {
-            holder.mSongsImage.setImageResource(R.drawable.default_art);
+            holder.mSongsImage.setImageResource(R.drawable.ic_music);
 
         } else {
-            holder.mSongsImage.setImageResource(R.drawable.bell_50);
+            holder.mSongsImage.setImageResource(R.drawable.ic_ringtone);
         }
 //            ImageLoader.getInstance().displayImage(Utils.getAlbumArtUri(Long.parseLong(mData.get(position).mAlbumId)).toString(),
 //                    holder.mSongsImage,

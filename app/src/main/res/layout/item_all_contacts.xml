@@ -11,7 +11,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="center"
-        android:src="@drawable/phone_60"
+        android:src="@drawable/ic_contact"
         android:padding="5dp"
         />
 

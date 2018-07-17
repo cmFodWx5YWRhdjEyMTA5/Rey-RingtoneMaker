@@ -2,7 +2,7 @@
     <string name="app_name">Ringtone Creator</string>
     <string name="ringdroid_app_name">Ringdroid</string>
     <string name="save_as">Save As:</string>
-    <string name="uri">/storage/emulated/0/Ringtones</string>
+    <string name="uri">/storage/emulated/0/ringtoneMaker</string>
     <string name="rate">Rate 5 stars</string>
     <string name="share">Share to friends</string>
     <string name="feedback">Feedback</string>

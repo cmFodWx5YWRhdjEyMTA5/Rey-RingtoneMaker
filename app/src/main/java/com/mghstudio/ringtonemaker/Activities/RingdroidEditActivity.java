@@ -1415,10 +1415,18 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
 
         // Insert it into the database
         Uri uri = MediaStore.Audio.Media.getContentUriForPath(outPath);
+        getContentResolver().delete(
+                uri,
+                MediaStore.MediaColumns.DATA + "=\""
+                        + outPath + "\"", null);
         final Uri newUri = getContentResolver().insert(uri, values);
         setResult(RESULT_OK, new Intent().setData(newUri));
 
         // If Ringdroid was launched to get content, just return
+        if (mWasGetContentIntent) {
+            finish();
+            return;
+        }
 
         // There's nothing more to do with music or an alarm.  Show a
         // success message and then quit.
@@ -1470,7 +1478,6 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                 int actionId = response.arg1;
                 switch (actionId) {
                     case R.id.button_make_default:
-                        if (!Utils.checkSystemWritePermission(RingdroidEditActivity.this)) return;
                         RingtoneManager.setActualDefaultRingtoneUri(
                                 RingdroidEditActivity.this,
                                 RingtoneManager.TYPE_RINGTONE,
@@ -1495,7 +1502,6 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         Message message = Message.obtain(handler);
         AfterSaveActionDialog dlog = new AfterSaveActionDialog(
                 this, message);
-        dlog.setCanceledOnTouchOutside(false);
         dlog.show();
     }
 
