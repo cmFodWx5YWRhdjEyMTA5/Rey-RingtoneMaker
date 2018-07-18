@@ -9,8 +9,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.media.MediaScannerConnection;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -27,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -57,6 +60,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
     private boolean mLoadingKeepGoing;
     private long mRecordingLastUpdateTime;
     private boolean mRecordingKeepGoing;
+    private boolean mStart;
     private double mRecordingTime;
     private boolean mFinishActivity;
     private TextView mTimerTextView;
@@ -77,6 +81,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
     private Toolbar mToolbar;
     private TextView mEndText;
     private TextView mInfo;
+    private Button mButton;
     private String mInfoContent;
     private ImageButton mPlayButton;
     private ImageButton mRewindButton;
@@ -599,6 +604,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgressDialog.setTitle(R.string.progress_dialog_loading);
         mProgressDialog.setCancelable(false);
+        mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.setOnCancelListener(
                 new DialogInterface.OnCancelListener() {
                     public void onCancel(DialogInterface dialog) {
@@ -688,105 +694,126 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         mFile = null;
         mTitle = null;
         mArtist = null;
+        mStart = false;
+
 
         mRecordingLastUpdateTime = getCurrentTime();
         mRecordingKeepGoing = true;
         mFinishActivity = false;
-        AlertDialog.Builder adBuilder = new AlertDialog.Builder(RingdroidEditActivity.this);
-        adBuilder.setTitle(getResources().getText(R.string.progress_dialog_recording));
+        final AlertDialog.Builder adBuilder = new AlertDialog.Builder(RingdroidEditActivity.this);
+        adBuilder.setTitle(getResources().getText(R.string.progress_dialog_title));
         adBuilder.setCancelable(false);
-        adBuilder.setNegativeButton(
-                getResources().getText(R.string.progress_dialog_cancel),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
+        adBuilder.setNegativeButton(getResources().getText(R.string.progress_dialog_cancel), null);
+        adBuilder.setPositiveButton(getResources().getText(R.string.progress_dialog_start), null);
+        adBuilder.setView(getLayoutInflater().inflate(R.layout.record_audio, null));
+        mAlertDialog = adBuilder.create();
+        mAlertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                mButton = mAlertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button negativeButton = mAlertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                negativeButton.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        // TODO Do something
                         mRecordingKeepGoing = false;
-                        mFinishActivity = true;
-                    }
-                });
-        adBuilder.setPositiveButton(
-                getResources().getText(R.string.progress_dialog_stop),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        mRecordingKeepGoing = false;
+                        RingdroidEditActivity.this.finish();
                     }
                 });
 
-        adBuilder.setView(getLayoutInflater().inflate(R.layout.record_audio, null));
-        mAlertDialog = adBuilder.show();
+                mButton.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        // TODO Do something
+                        if (mButton.getText().equals("OK")) {
+                            mRecordingKeepGoing = false;
+                        } else {
+                            mAlertDialog.setTitle(R.string.progress_dialog_recording);
+                            mButton.setText(R.string.progress_dialog_buttonOK);
+                            final SoundFile.ProgressListener listener =
+                                    new SoundFile.ProgressListener() {
+                                        public boolean reportProgress(double elapsedTime) {
+                                            long now = getCurrentTime();
+                                            if (now - mRecordingLastUpdateTime > 5) {
+                                                mRecordingTime = elapsedTime;
+                                                // Only UI thread can update Views such as TextViews.
+                                                runOnUiThread(new Runnable() {
+                                                    public void run() {
+                                                        int min = (int) (mRecordingTime / 60);
+                                                        float sec = (float) (mRecordingTime - 60 * min);
+                                                        mTimerTextView.setText(String.format("%d:%05.2f", min, sec));
+                                                    }
+                                                });
+                                                mRecordingLastUpdateTime = now;
+                                            }
+                                            return mRecordingKeepGoing;
+                                        }
+                                    };
+
+                            // Record the audio stream in a background thread
+                            mRecordAudioThread = new Thread() {
+                                public void run() {
+                                    try {
+                                        mSoundFile = SoundFile.record(listener);
+                                        if (mSoundFile == null) {
+                                            mAlertDialog.dismiss();
+                                            Runnable runnable = new Runnable() {
+                                                public void run() {
+                                                    showFinalAlert(
+                                                            new Exception(),
+                                                            getResources().getText(R.string.record_error)
+                                                    );
+                                                }
+                                            };
+                                            mHandler.post(runnable);
+                                            return;
+                                        }
+                                        mPlayer = new SamplePlayer(mSoundFile);
+                                    } catch (final Exception e) {
+
+                                        mAlertDialog.dismiss();
+                                        e.printStackTrace();
+                                        mInfoContent = e.toString();
+                                        runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                mInfo.setText(mInfoContent);
+                                            }
+                                        });
+
+                                        Runnable runnable = new Runnable() {
+                                            public void run() {
+                                                showFinalAlert(e, getResources().getText(R.string.record_error));
+                                            }
+                                        };
+                                        mHandler.post(runnable);
+                                        return;
+                                    }
+                                    mAlertDialog.dismiss();
+                                    if (mFinishActivity) {
+                                        RingdroidEditActivity.this.finish();
+                                    } else {
+                                        Runnable runnable = new Runnable() {
+                                            public void run() {
+                                                finishOpeningSoundFile();
+                                            }
+                                        };
+                                        mHandler.post(runnable);
+                                    }
+                                }
+                            };
+                            mRecordAudioThread.start();
+
+                        }
+                    }
+                });
+            }
+        });
+
+        mAlertDialog.show();
         mTimerTextView = mAlertDialog.findViewById(R.id.record_audio_timer);
 
-        final SoundFile.ProgressListener listener =
-                new SoundFile.ProgressListener() {
-                    public boolean reportProgress(double elapsedTime) {
-                        long now = getCurrentTime();
-                        if (now - mRecordingLastUpdateTime > 5) {
-                            mRecordingTime = elapsedTime;
-                            // Only UI thread can update Views such as TextViews.
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    int min = (int) (mRecordingTime / 60);
-                                    float sec = (float) (mRecordingTime - 60 * min);
-                                    mTimerTextView.setText(String.format("%d:%05.2f", min, sec));
-                                }
-                            });
-                            mRecordingLastUpdateTime = now;
-                        }
-                        return mRecordingKeepGoing;
-                    }
-                };
-
-        // Record the audio stream in a background thread
-        mRecordAudioThread = new Thread() {
-            public void run() {
-                try {
-                    mSoundFile = SoundFile.record(listener);
-                    if (mSoundFile == null) {
-                        mAlertDialog.dismiss();
-                        Runnable runnable = new Runnable() {
-                            public void run() {
-                                showFinalAlert(
-                                        new Exception(),
-                                        getResources().getText(R.string.record_error)
-                                );
-                            }
-                        };
-                        mHandler.post(runnable);
-                        return;
-                    }
-                    mPlayer = new SamplePlayer(mSoundFile);
-                } catch (final Exception e) {
-
-                    mAlertDialog.dismiss();
-                    e.printStackTrace();
-                    mInfoContent = e.toString();
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            mInfo.setText(mInfoContent);
-                        }
-                    });
-
-                    Runnable runnable = new Runnable() {
-                        public void run() {
-                            showFinalAlert(e, getResources().getText(R.string.record_error));
-                        }
-                    };
-                    mHandler.post(runnable);
-                    return;
-                }
-                mAlertDialog.dismiss();
-                if (mFinishActivity) {
-                    RingdroidEditActivity.this.finish();
-                } else {
-                    Runnable runnable = new Runnable() {
-                        public void run() {
-                            finishOpeningSoundFile();
-                        }
-                    };
-                    mHandler.post(runnable);
-                }
-            }
-        };
-        mRecordAudioThread.start();
     }
 
     private void finishOpeningSoundFile() {
@@ -1207,6 +1234,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         mProgressDialog.setTitle(R.string.progress_dialog_saving);
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.setCancelable(false);
+        mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.show();
 
         // Save the sound file in a background thread
@@ -1228,8 +1256,24 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                 try {
                     // Write the new file
                     mSoundFile.WriteFile(outFile, startFrame, endFrame - startFrame);
-                    Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(outFile));//( ,outputFile.toURI());
-                    mContext.sendBroadcast(mediaScanIntent);
+                    final String mPath = outFile.getAbsolutePath();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        MediaScannerConnection.scanFile(mContext, new String[]{mPath}, new String[]{"audio/mp4a-latm"}, new MediaScannerConnection.OnScanCompletedListener() {
+                            @Override
+                            public void onScanCompleted(String s, Uri uri) {
+                                Log.i("ExternalStorage", "Scanned " + mPath + ":");
+                                Log.i("ExternalStorage", "-> uri=" + uri);
+                            }
+                        });
+
+                        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                        Uri contentUri = Uri.fromFile(outFile);
+                        mediaScanIntent.setData(contentUri);
+                        mContext.sendBroadcast(mediaScanIntent);
+                    } else {
+                        mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+                                Uri.parse("file://" + outFile.getPath())));
+                    }
                 } catch (Exception e) {
                     // log the error and try to create a .wav file instead
                     if (outFile.exists()) {
@@ -1389,10 +1433,18 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
 
         // Insert it into the database
         Uri uri = MediaStore.Audio.Media.getContentUriForPath(outPath);
+        getContentResolver().delete(
+                uri,
+                MediaStore.MediaColumns.DATA + "=\""
+                        + outPath + "\"", null);
         final Uri newUri = getContentResolver().insert(uri, values);
         setResult(RESULT_OK, new Intent().setData(newUri));
 
         // If Ringdroid was launched to get content, just return
+        if (mWasGetContentIntent) {
+            finish();
+            return;
+        }
 
         // There's nothing more to do with music or an alarm.  Show a
         // success message and then quit.
@@ -1469,7 +1521,6 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         Message message = Message.obtain(handler);
         AfterSaveActionDialog dlog = new AfterSaveActionDialog(
                 this, message);
-        dlog.setCanceledOnTouchOutside(false);
         dlog.show();
     }
 

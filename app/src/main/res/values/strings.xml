@@ -1,8 +1,8 @@
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources>
     <string name="app_name">Ringtone Creator</string>
     <string name="ringdroid_app_name">Ringdroid</string>
     <string name="save_as">Save As:</string>
-    <string name="uri">/storage/emulated/0/Ringtones</string>
+    <string name="uri">/storage/emulated/0/ringtoneMaker</string>
     <string name="rate">Rate 5 stars</string>
     <string name="share">Share to friends</string>
     <string name="feedback">Feedback</string>
@@ -57,10 +57,13 @@
 
     <!-- Progress dialog text for loading, recording, or saving... -->
     <string name="progress_dialog_loading">Loading…</string>
+    <string name="progress_dialog_title">Press start to record </string>
     <string name="progress_dialog_recording">Recording…</string>
     <string name="progress_dialog_saving">Saving…</string>
     <string name="progress_dialog_cancel">Cancel</string>
     <string name="progress_dialog_stop">Stop</string>
+    <string name="progress_dialog_start">Start</string>
+    <string name="progress_dialog_buttonOK">OK</string>
 
     <!-- Image button descriptions for accessibility -->
 
@@ -153,9 +156,9 @@
 
 
     <string name="combine_two_strings" translatable="false">%1$s | %2$s</string>
-    <string name="duration_format" translatable="false"><xliff:g id="hours">%1$s</xliff:g> <xliff:g id="minutes">%2$s</xliff:g></string>
-    <string name="durationformatshort" translatable="false"><xliff:g id="format">%2$d:%3$02d</xliff:g></string>
-    <string name="durationformatlong" translatable="false"><xliff:g id="format">%1$d:%2$02d:%3$02d</xliff:g></string>
+    <string name="duration_format" translatable="false"><g id="hours">%1$s</g> <g id="minutes">%2$s</g></string>
+    <string name="durationformatshort" translatable="false"><g id="format">%2$d:%3$02d</g></string>
+    <string name="durationformatlong" translatable="false"><g id="format">%1$d:%2$02d:%3$02d</g></string>
     <string name="ringtone_set">Ringtone set.</string>
     <string name="set_ringtone">Set Ringtone!</string>
     <string name="write_setting_text">Ringtone make requiers permission to \'Write Settings\' in order to set your ringtone.\n After granting permission, try setting your ringtone again.</string>

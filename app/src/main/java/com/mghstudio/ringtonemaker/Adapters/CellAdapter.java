@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.mghstudio.ringtonemaker.R;
 
 public class CellAdapter extends BaseAdapter {
@@ -41,34 +42,34 @@ public class CellAdapter extends BaseAdapter {
 
         if (convertView == null) {
 
-            gridView = new View(context);
+//            gridView = new View(context);
 
             // get layout from cell.xml
             gridView = inflater.inflate(R.layout.cell, null);
 
             // set value into textview
-            TextView textView = (TextView) gridView
+            TextView textView = gridView
                     .findViewById(R.id.grid_item_textview);
             textView.setText(items[position]);
 
             // set image based on selected text
-            ImageView imageView = (ImageView) gridView
+            ImageView imageView = gridView
                     .findViewById(R.id.grid_item_image);
 
             String item = items[position];
 
             if (item.equals("Contacts")) {
-                imageView.setImageResource(R.drawable.contacts_book_60);
+                imageView.setImageResource(R.drawable.btn_contact);
             } else if (item.equals("Ringtone")) {
-                imageView.setImageResource(R.drawable.music_note_60);
+                imageView.setImageResource(R.drawable.btn_ringtone);
             } else if (item.equals("Settings")) {
-                imageView.setImageResource(R.drawable.settings_60);
+                imageView.setImageResource(R.drawable.btn_setting);
             } else {
-                imageView.setImageResource(R.drawable.settings_60);
+                imageView.setImageResource(R.drawable.btn_more);
             }
 
         } else {
-            gridView = (View) convertView;
+            gridView = convertView;
         }
 
         return gridView;

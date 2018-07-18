@@ -47,6 +47,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import com.facebook.ads.AdSize;
@@ -102,10 +103,12 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     private LinearLayout mPermissionLayout;
     private Button mAllowButton;
     private AdView adView;
+    private SimpleCursorAdapter mAdapter;
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
 
         mContext = getApplicationContext();
         String status = Environment.getExternalStorageState();
@@ -161,21 +164,12 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
         mSongsAdapter = new SongsAdapter(this, mData);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         mRecyclerView.setAdapter(mSongsAdapter);
-
         Utils.initImageLoader(mContext);
-
-        /*mAllowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Utils.checkAndRequestPermissions(RingdroidSelectActivity.this, true);
-            }
-        });*/
 
         if (Utils.checkAndRequestPermissions(this, false)) {
             loadData();
         } else {
             mFastScroller.setVisibility(View.GONE);
-//            mPermissionLayout.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.GONE);
         }
     }
@@ -210,6 +204,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     }
 
     private void loadData() {
+//        mData.clear();
 //        mData.addAll(Utils.getSongList(getApplicationContext(), true, null));
         mData.addAll(Utils.getSongList(getApplicationContext(), false, null));
         mSongsAdapter.updateData(mData);
@@ -417,21 +412,25 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
 
 
     private void chooseContactForRingtone(int pos) {
+        Uri uri;
+        if (mData.get(pos).mFileType.equalsIgnoreCase(Constants.IS_MUSIC))
+            uri = getExtUri(pos);
+        else
+            uri = getInternalUri(pos);
+        try {
 
-        Intent intent = new Intent(RingdroidSelectActivity.this, ChooseContactActivity.class);
-        if (mData.get(pos).mFileType.equalsIgnoreCase(Constants.IS_RINGTONE)) {
-            intent.putExtra(Constants.FILE_NAME, String.valueOf(getInternalUri(pos)));
-        } else if (mData.get(pos).mFileType.equalsIgnoreCase(Constants.IS_MUSIC)) {
-            intent.putExtra(Constants.FILE_NAME, String.valueOf(getExtUri(pos)));
-        } else {
-            intent.putExtra(Constants.FILE_NAME, String.valueOf(getInternalUri(pos)));
+            Intent intent = new Intent(Intent.ACTION_EDIT, uri);
+            intent.setClassName(
+                    "com.mghstudio.ringtonemaker",
+                    "com.mghstudio.ringtonemaker.Activities.ChooseContactActivity");
+            startActivityForResult(intent, REQUEST_CODE_CHOOSE_CONTACT);
+        } catch (Exception e) {
+            Log.e("Ringdroid", "Couldn't open Choose Contact window");
         }
-        startActivity(intent);
 
-//        return true;
     }
 
-    private void confirmDelete(int pos) {
+    private void confirmDelete(final int pos) {
         // See if the selected list item was created by Ringdroid to
         // determine which alert message to show
 
@@ -468,7 +467,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int whichButton) {
-                                onDelete();
+                                onDelete(pos);
                             }
                         })
                 .setNegativeButton(
@@ -478,29 +477,29 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
                                                 int whichButton) {
                             }
                         })
-                .setCancelable(true)
+                .setCancelable(false)
                 .show();
+
     }
 
-    private void onDelete() {
-//        Cursor c = mAdapter.getCursor();
-//        int dataIndex = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
-//        String filename = c.getString(dataIndex);
-//
-//        int uriIndex = getUriIndex(c);
-//        if (uriIndex == -1) {
-//            showFinalAlert(getResources().getText(R.string.delete_failed));
-//            return;
-//        }
-//
+    private void onDelete(int mPos) {
+        Uri uri;
+        if (mData.get(mPos).mFileType.equalsIgnoreCase(Constants.IS_MUSIC))
+            uri = getExtUri(mPos);
+        else
+            uri = getInternalUri(mPos);
+        String filename = mData.get(mPos).mPath;
+
 //        if (!new File(filename).delete()) {
 //            showFinalAlert(getResources().getText(R.string.delete_failed));
 //        }
-//
-//        String itemUri = c.getString(uriIndex) + "/" + c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-//        getContentResolver().delete(Uri.parse(itemUri), null, null);
-    }
 
+
+        getContentResolver().delete(uri, null, null);
+        Log.d("tuancon111", "" + getContentResolver().delete(uri, null, null));
+//        mSongsAdapter.notifyDataSetChanged();
+
+    }
     private void showFinalAlert(CharSequence message) {
         new AlertDialog.Builder(RingdroidSelectActivity.this)
                 .setTitle(getResources().getText(R.string.alert_title_failure))
@@ -547,7 +546,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     @Override
     public boolean onQueryTextChange(String newText) {
         mData.clear();
-        mData.addAll(Utils.getSongList(getApplicationContext(), true, newText));
+//        mData.addAll(Utils.getSongList(getApplicationContext(), true, newText));
         mData.addAll(Utils.getSongList(getApplicationContext(), false, newText));
         mSongsAdapter.updateData(mData);
         return false;

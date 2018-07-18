@@ -8,7 +8,7 @@
     <item
         android:width="18dp"
         android:height="18dp"
-        android:drawable="@drawable/bell_ring"
+        android:drawable="@drawable/ring"
         android:gravity="center"
         android:left="0px"/>
 
