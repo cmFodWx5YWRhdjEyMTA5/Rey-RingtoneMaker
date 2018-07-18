@@ -47,6 +47,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import com.facebook.ads.AdSize;
@@ -102,10 +103,12 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     private LinearLayout mPermissionLayout;
     private Button mAllowButton;
     private AdView adView;
+    private SimpleCursorAdapter mAdapter;
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
 
         mContext = getApplicationContext();
         String status = Environment.getExternalStorageState();
@@ -417,18 +420,22 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
 
 
     private void chooseContactForRingtone(int pos) {
+        Uri uri;
+        if (mData.get(pos).mFileType.equalsIgnoreCase(Constants.IS_MUSIC))
+            uri = getExtUri(pos);
+        else
+            uri = getInternalUri(pos);
+        try {
 
-        Intent intent = new Intent(RingdroidSelectActivity.this, ChooseContactActivity.class);
-        if (mData.get(pos).mFileType.equalsIgnoreCase(Constants.IS_RINGTONE)) {
-            intent.putExtra(Constants.FILE_NAME, String.valueOf(getInternalUri(pos)));
-        } else if (mData.get(pos).mFileType.equalsIgnoreCase(Constants.IS_MUSIC)) {
-            intent.putExtra(Constants.FILE_NAME, String.valueOf(getExtUri(pos)));
-        } else {
-            intent.putExtra(Constants.FILE_NAME, String.valueOf(getInternalUri(pos)));
+            Intent intent = new Intent(Intent.ACTION_EDIT, uri);
+            intent.setClassName(
+                    "com.mghstudio.ringtonemaker",
+                    "com.mghstudio.ringtonemaker.Activities.ChooseContactActivity");
+            startActivityForResult(intent, REQUEST_CODE_CHOOSE_CONTACT);
+        } catch (Exception e) {
+            Log.e("Ringdroid", "Couldn't open Choose Contact window");
         }
-        startActivity(intent);
 
-//        return true;
     }
 
     private void confirmDelete(final int pos) {
@@ -485,41 +492,39 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     }
 
     private void onDelete(int mPos) {
-//        Cursor c = mAdapter.getCursor();\
-        String path = mData.get(mPos).mPath;
-        String[] proj = {MediaStore.Images.Media.DATA};
-        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
-        Cursor c;
+        Uri uri;
         if (mData.get(mPos).mFileType.equalsIgnoreCase(Constants.IS_MUSIC))
-            c = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, proj, selection, null, null);
+            uri = getExtUri(mPos);
         else
-            c = getContentResolver().query(MediaStore.Audio.Media.INTERNAL_CONTENT_URI, proj, selection, null, null);
-        String filename = null;
-        try {
-            int dataIndex = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
-            filename = c.getString(dataIndex);
-        } catch (Exception e) {
-            e.printStackTrace();
+            uri = getInternalUri(mPos);
+//
+//        String[] proj = {
+//                MediaStore.Audio.Media.ARTIST,
+//                MediaStore.Audio.Media.TITLE,
+//                MediaStore.Audio.Media._ID,
+//                MediaStore.Audio.Media.DATA};
+//        Cursor c = getContentResolver().query(uri, proj, null, null, null);
+//        c.moveToFirst();
+//        int dataIndex = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+
+        String filename = mData.get(mPos).mPath;
+
+//        int uriIndex = getUriIndex(c);
+//        if (uriIndex == -1) {
+//            showFinalAlert(getResources().getText(R.string.delete_failed));
+//            return;
+//        }
+
+        if (!new File(filename).delete()) {
+            showFinalAlert(getResources().getText(R.string.delete_failed));
         }
 
+//        String itemUri = c.getString(uriIndex) + "/" + c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+//        String itemUri =
+        getContentResolver().delete(uri, null, null);
+        Log.d("tuancon111", "" + getContentResolver().delete(uri, null, null));
 
-        int uriIndex = getUriIndex(c);
-        if (uriIndex == -1) {
-            showFinalAlert(getResources().getText(R.string.delete_failed));
-            return;
-        }
-
-        if (filename != null) {
-            if (!new File(filename).delete()) {
-                showFinalAlert(getResources().getText(R.string.delete_failed));
-            }
-
-            String itemUri = c.getString(uriIndex) + "/" + c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-            getContentResolver().delete(Uri.parse(itemUri), null, null);
-        } else
-            showFinalAlert(getResources().getText(R.string.delete_failed));
     }
-
     private void showFinalAlert(CharSequence message) {
         new AlertDialog.Builder(RingdroidSelectActivity.this)
                 .setTitle(getResources().getText(R.string.alert_title_failure))
