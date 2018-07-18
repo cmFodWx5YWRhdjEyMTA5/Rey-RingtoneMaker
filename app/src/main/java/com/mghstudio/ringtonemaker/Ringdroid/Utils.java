@@ -77,10 +77,10 @@ public class Utils {
     public static ArrayList<SongsModel> getSongList(Context context, boolean internal, String searchString) {
 
         String[] selectionArgs = null;
-        String selection = MediaStore.Audio.Media.IS_RINGTONE + "!=0"
-                + " OR " + MediaStore.Audio.Media.IS_MUSIC + "!=0"
-//               +" OR " +  MediaStore.Audio.Media.IS_ALARM + "!=0"
-//               +" OR " +  MediaStore.Audio.Media.IS_NOTIFICATION + "!=0"
+        String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0"
+                + " OR " + MediaStore.Audio.Media.IS_RINGTONE + "!=0"
+//               + " OR " +  MediaStore.Audio.Media.IS_ALARM + "!=0"
+//               + " OR " +  MediaStore.Audio.Media.IS_NOTIFICATION + "!=0"
                 ;
 //        String selection = MediaStore.Audio.Media.DATA + " like ? ";
         if (searchString != null && searchString.length() > 0) {

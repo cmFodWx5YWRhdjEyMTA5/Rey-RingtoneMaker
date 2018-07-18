@@ -1256,11 +1256,20 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                 try {
                     // Write the new file
                     mSoundFile.WriteFile(outFile, startFrame, endFrame - startFrame);
+                    final String mPath = outFile.getAbsolutePath();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        MediaScannerConnection.scanFile(mContext, new String[]{outPath}, null, null);
+                        MediaScannerConnection.scanFile(mContext, new String[]{mPath}, new String[]{"audio/mp4a-latm"}, new MediaScannerConnection.OnScanCompletedListener() {
+                            @Override
+                            public void onScanCompleted(String s, Uri uri) {
+                                Log.i("ExternalStorage", "Scanned " + mPath + ":");
+                                Log.i("ExternalStorage", "-> uri=" + uri);
+                            }
+                        });
 
-                        Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(outFile));
-                        sendBroadcast(scanIntent);
+                        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                        Uri contentUri = Uri.fromFile(outFile);
+                        mediaScanIntent.setData(contentUri);
+                        mContext.sendBroadcast(mediaScanIntent);
                     } else {
                         mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
                                 Uri.parse("file://" + outFile.getPath())));

@@ -204,8 +204,8 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     }
 
     private void loadData() {
-        mData.clear();
-        mData.addAll(Utils.getSongList(getApplicationContext(), true, null));
+//        mData.clear();
+//        mData.addAll(Utils.getSongList(getApplicationContext(), true, null));
         mData.addAll(Utils.getSongList(getApplicationContext(), false, null));
         mSongsAdapter.updateData(mData);
     }
@@ -480,7 +480,6 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
                 .setCancelable(false)
                 .show();
 
-        loadData();
     }
 
     private void onDelete(int mPos) {
@@ -547,7 +546,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     @Override
     public boolean onQueryTextChange(String newText) {
         mData.clear();
-        mData.addAll(Utils.getSongList(getApplicationContext(), true, newText));
+//        mData.addAll(Utils.getSongList(getApplicationContext(), true, newText));
         mData.addAll(Utils.getSongList(getApplicationContext(), false, newText));
         mSongsAdapter.updateData(mData);
         return false;
