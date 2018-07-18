@@ -9,8 +9,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.media.MediaScannerConnection;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -1254,8 +1256,15 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                 try {
                     // Write the new file
                     mSoundFile.WriteFile(outFile, startFrame, endFrame - startFrame);
-                    Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(outFile));//( ,outputFile.toURI());
-                    mContext.sendBroadcast(mediaScanIntent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        MediaScannerConnection.scanFile(mContext, new String[]{outPath}, null, null);
+
+                        Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(outFile));
+                        sendBroadcast(scanIntent);
+                    } else {
+                        mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+                                Uri.parse("file://" + outFile.getPath())));
+                    }
                 } catch (Exception e) {
                     // log the error and try to create a .wav file instead
                     if (outFile.exists()) {
@@ -1478,6 +1487,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                 int actionId = response.arg1;
                 switch (actionId) {
                     case R.id.button_make_default:
+                        if (!Utils.checkSystemWritePermission(RingdroidEditActivity.this)) return;
                         RingtoneManager.setActualDefaultRingtoneUri(
                                 RingdroidEditActivity.this,
                                 RingtoneManager.TYPE_RINGTONE,

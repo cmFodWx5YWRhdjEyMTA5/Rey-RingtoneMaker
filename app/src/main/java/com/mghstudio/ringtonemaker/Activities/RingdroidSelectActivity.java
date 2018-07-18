@@ -164,21 +164,12 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
         mSongsAdapter = new SongsAdapter(this, mData);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         mRecyclerView.setAdapter(mSongsAdapter);
-//        mSongsAdapter.notifyDataSetChanged();
         Utils.initImageLoader(mContext);
-
-        /*mAllowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Utils.checkAndRequestPermissions(RingdroidSelectActivity.this, true);
-            }
-        });*/
 
         if (Utils.checkAndRequestPermissions(this, false)) {
             loadData();
         } else {
             mFastScroller.setVisibility(View.GONE);
-//            mPermissionLayout.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.GONE);
         }
     }
@@ -213,6 +204,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     }
 
     private void loadData() {
+        mData.clear();
         mData.addAll(Utils.getSongList(getApplicationContext(), true, null));
         mData.addAll(Utils.getSongList(getApplicationContext(), false, null));
         mSongsAdapter.updateData(mData);
@@ -488,7 +480,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
                 .setCancelable(false)
                 .show();
 
-        mSongsAdapter.notifyDataSetChanged();
+        loadData();
     }
 
     private void onDelete(int mPos) {
@@ -497,32 +489,16 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
             uri = getExtUri(mPos);
         else
             uri = getInternalUri(mPos);
-//
-//        String[] proj = {
-//                MediaStore.Audio.Media.ARTIST,
-//                MediaStore.Audio.Media.TITLE,
-//                MediaStore.Audio.Media._ID,
-//                MediaStore.Audio.Media.DATA};
-//        Cursor c = getContentResolver().query(uri, proj, null, null, null);
-//        c.moveToFirst();
-//        int dataIndex = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
-
         String filename = mData.get(mPos).mPath;
 
-//        int uriIndex = getUriIndex(c);
-//        if (uriIndex == -1) {
+//        if (!new File(filename).delete()) {
 //            showFinalAlert(getResources().getText(R.string.delete_failed));
-//            return;
 //        }
 
-        if (!new File(filename).delete()) {
-            showFinalAlert(getResources().getText(R.string.delete_failed));
-        }
 
-//        String itemUri = c.getString(uriIndex) + "/" + c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-//        String itemUri =
         getContentResolver().delete(uri, null, null);
         Log.d("tuancon111", "" + getContentResolver().delete(uri, null, null));
+//        mSongsAdapter.notifyDataSetChanged();
 
     }
     private void showFinalAlert(CharSequence message) {
