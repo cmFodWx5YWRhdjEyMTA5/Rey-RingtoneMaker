@@ -52,8 +52,8 @@ public class runningService extends Service {
     public void onCreate() {
         super.onCreate();
         processLis = new ArrayList<>();
-        if(true)
-            return;
+//        if(true)
+//            return;
         //Special one
 
 
@@ -118,7 +118,7 @@ public class runningService extends Service {
             @Override
             public void onAdClosed() {
                 // Code to be executed when when the interstitial ad is closed.
-                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+//                mInterstitialAd.loadAd(new AdRequest.Builder().build());
             }
         });
 
