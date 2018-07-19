@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.mghstudio.ringtonemaker.Activities;
 
 import android.content.ContentValues;
@@ -33,7 +17,6 @@ import android.widget.Toast;
 import com.mghstudio.ringtonemaker.Adapters.ContactsAdapter;
 import com.mghstudio.ringtonemaker.Models.ContactsModel;
 import com.mghstudio.ringtonemaker.R;
-import com.mghstudio.ringtonemaker.Ringdroid.Constants;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 
 import java.util.ArrayList;
@@ -59,9 +42,7 @@ public class ChooseContactActivity extends AppCompatActivity implements SearchVi
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         Intent intent = getIntent();
-        if (intent.getExtras() != null)
-            mRingtoneUri = Uri.parse(intent.getExtras().getString(Constants.FILE_NAME));
-
+        mRingtoneUri = intent.getData();
         setContentView(R.layout.choose_contact);
 
         mData = new ArrayList<>();

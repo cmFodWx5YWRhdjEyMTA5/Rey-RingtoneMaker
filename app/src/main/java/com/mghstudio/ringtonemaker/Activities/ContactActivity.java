@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -42,11 +43,11 @@ public class ContactActivity extends AppCompatActivity {
     private AllContactsAdapter mContactsAdapter;
     private ArrayList<ContactsModel> mData;
     Uri mRingtoneUri;
-    ArrayList<String> list;
+    ArrayList<String> list = new ArrayList<>();
     String stringUri;
     String ringtoneName;
     private int checked = 0;
-    private AdView adView;
+
     private MediaPlayer md;
     private boolean isClicked = false;
 
@@ -55,6 +56,7 @@ public class ContactActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_contact);
+        AdView adView;
 
         adView = new AdView(this, "2199797023369826_2269185393097655", AdSize.BANNER_HEIGHT_50);
 
@@ -119,16 +121,11 @@ public class ContactActivity extends AppCompatActivity {
                         "DISPLAY_NAME ASC");
 
         Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(ContactActivity.this, RingtoneManager.TYPE_RINGTONE);
-//        Uri defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-        String ringToneName;
         if (defaultRingtoneUri == null) {
             // if ringtone_uri is null get Default Ringtone
             defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 
         }
-//        Ringtone ringtone = RingtoneManager.getRingtone(this, defaultRingtoneUri);
-//        ringToneName = ringtone.getTitle(this);
-
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 Uri customUri;
@@ -137,11 +134,7 @@ public class ContactActivity extends AppCompatActivity {
                 } else {
                     customUri = Uri.parse(cursor.getString(1));
                 }
-//                ringToneName = "aa";//RingtoneManager.getRingtone(ctx, customUri).getTitle(ctx);
-
-//                ContactsModel contactsModel = new ContactsModel(cursor.getString(2),
-//                        cursor.getString(0), ringToneName);
-                ContactsModel contactsModel = new ContactsModel(cursor.getString(2),cursor.getString(0),customUri);
+                ContactsModel contactsModel = new ContactsModel(cursor.getString(2), cursor.getString(0), customUri);
                 contactsModels.add(contactsModel);
             } while (cursor.moveToNext());
         }
@@ -153,8 +146,7 @@ public class ContactActivity extends AppCompatActivity {
 
     private ArrayList<String> getListRingtones() {
         ArrayList<String> list = new ArrayList<>();
-//        Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(ContactActivity.this, RingtoneManager.TYPE_RINGTONE);
-//        RingtoneManager.setActualDefaultRingtoneUri(getApplicationContext(),RingtoneManager.TYPE_RINGTONE, defaultRingtoneUri);
+
         RingtoneManager manager = new RingtoneManager(this);
         manager.setType(RingtoneManager.TYPE_RINGTONE);
         Cursor cursor = manager.getCursor();
@@ -175,14 +167,12 @@ public class ContactActivity extends AppCompatActivity {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(ContactActivity.this);
         builder.setTitle("Choose a Ringtone");
-
-        list = getListRingtones();
-        String[] animals = new String[list.size()];
-        list.toArray(animals);
+        String defaultRingtone = "Default ringtone";
+        list.add(defaultRingtone);
+        list.addAll(getListRingtones());
+        String[] songs = new String[list.size()];
+        list.toArray(songs);
         String tempRing = mContactsAdapter.getItem(adapterPosition).mRingtone;
-
-
-//         = pres.getString(tempRing, null);
 
         int temChecked = 0;
         for (int i = 0; i < list.size(); i++)
@@ -191,23 +181,49 @@ public class ContactActivity extends AppCompatActivity {
         checked = temChecked;
 
 
-        builder.setSingleChoiceItems(animals, checked, new DialogInterface.OnClickListener() {
+        builder.setSingleChoiceItems(songs, checked, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 checked = which;
                 ringtoneName = list.get(which);
                 SharedPreferences pres = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                stringUri = pres.getString(ringtoneName, null);
-                if (stringUri != null) {
-                    mRingtoneUri = Uri.parse(stringUri);
+                if (which == 0) {
+                    mRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(ContactActivity.this, RingtoneManager.TYPE_RINGTONE);
                     if (isClicked && md != null) {
                         md.release();
                     }
-                    md = MediaPlayer.create(getApplicationContext(), mRingtoneUri);
-                    md.start();
+                    if (mRingtoneUri == null) {
+                        mRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+                        Ringtone ringtoneAlarm = RingtoneManager.getRingtone(getApplicationContext(), mRingtoneUri);
+                        ringtoneAlarm.play();
+                    } else {
+                        try {
+                            md = new MediaPlayer();
+                            md.setDataSource(getApplicationContext(), mRingtoneUri);
+                            md.prepare();
+                            md.start();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+//                            mRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+//                            Ringtone ringtoneAlarm = RingtoneManager.getRingtone(getApplicationContext(), mRingtoneUri);
+//                            ringtoneAlarm.play();
+                        }
+                    }
                     isClicked = true;
+                } else {
+                    stringUri = pres.getString(ringtoneName, null);
+                    if (stringUri != null) {
+                        mRingtoneUri = Uri.parse(stringUri);
+                        if (isClicked && md != null) {
+                            md.release();
+                        }
+                        md = MediaPlayer.create(getApplicationContext(), mRingtoneUri);
+                        md.start();
+                        isClicked = true;
 
+                    }
                 }
+
 
             }
         });
@@ -258,4 +274,6 @@ public class ContactActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+
 }

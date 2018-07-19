@@ -30,7 +30,7 @@
         android:layout_height="fill_parent"
         android:gravity="center"
         android:padding="8dp"
-        android:text="25.25"
+        android:text="00.00"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="50sp"
         />

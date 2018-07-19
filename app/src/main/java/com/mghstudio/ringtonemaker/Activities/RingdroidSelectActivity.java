@@ -47,6 +47,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import com.facebook.ads.AdSize;
@@ -59,12 +60,12 @@ import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.mghstudio.ringtonemaker.Views.FastScroller;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_MULTIPLE_PERMISSIONS;
 import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_READ_CONTACTS_PERMISSION;
 import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_RECORD_AUDIO_PERMISSION;
 
@@ -102,6 +103,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     private LinearLayout mPermissionLayout;
     private Button mAllowButton;
     private AdView adView;
+    private SimpleCursorAdapter mAdapter;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -142,7 +144,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
 
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        if(getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
@@ -162,21 +164,12 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
         mSongsAdapter = new SongsAdapter(this, mData);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         mRecyclerView.setAdapter(mSongsAdapter);
-
         Utils.initImageLoader(mContext);
-
-        /*mAllowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Utils.checkAndRequestPermissions(RingdroidSelectActivity.this, true);
-            }
-        });*/
 
         if (Utils.checkAndRequestPermissions(this, false)) {
             loadData();
         } else {
             mFastScroller.setVisibility(View.GONE);
-//            mPermissionLayout.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.GONE);
         }
     }
@@ -185,23 +178,6 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_ID_MULTIPLE_PERMISSIONS: {
-                Map<String, Integer> perms = new HashMap<>();
-                perms.put(Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
-
-                if (grantResults.length > 0) {
-                    for (int i = 0; i < permissions.length; i++)
-                        perms.put(permissions[i], grantResults[i]);
-                    if (perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        loadData();
-                        mFastScroller.setVisibility(View.VISIBLE);
-//                        mPermissionLayout.setVisibility(View.GONE);
-                        mRecyclerView.setVisibility(View.VISIBLE);
-                        invalidateOptionsMenu();
-                    }
-                }
-                break;
-            }
             case REQUEST_ID_RECORD_AUDIO_PERMISSION:
                 Map<String, Integer> perms = new HashMap<>();
                 perms.put(Manifest.permission.RECORD_AUDIO, PackageManager.PERMISSION_GRANTED);
@@ -228,7 +204,8 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     }
 
     private void loadData() {
-       /// mData.addAll(Utils.getSongList(getApplicationContext(), true, null));
+//        mData.clear();
+//        mData.addAll(Utils.getSongList(getApplicationContext(), true, null));
         mData.addAll(Utils.getSongList(getApplicationContext(), false, null));
         mSongsAdapter.updateData(mData);
     }
@@ -281,8 +258,41 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
             case android.R.id.home:
                 onBackPressed();
                 return true;
+//            case R.id.scan:
+//                scanFile();
+
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//                    final Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+//                    final Uri contentUri = Uri.fromFile(outputFile);
+//                    scanIntent.setData(contentUri);
+//                    sendBroadcast(scanIntent);
+//                } else {
+//                    final Intent intent = new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory()));
+//                    sendBroadcast(intent);
+//                }
+//                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+//                return true;
             default:
                 return false;
+        }
+    }
+
+    private void scanFile() {
+        File folder_file = Environment.getExternalStorageDirectory();
+        File[] files = folder_file.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                // checking the File is file or directory
+                if (file.isFile()) {
+                    String path = file.getAbsolutePath();
+                    String extension = path
+                            .substring(path.lastIndexOf(".") + 1);
+                    // if the file is audio type, then save it to the database
+                    if (extension.equalsIgnoreCase("mp3")) {
+                        System.out.println(path + " is a media file ");
+                    }
+                }
+            }
         }
     }
 
@@ -401,22 +411,26 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     }
 
 
-    private boolean chooseContactForRingtone(int pos) {
+    private void chooseContactForRingtone(int pos) {
+        Uri uri;
+        if (mData.get(pos).mFileType.equalsIgnoreCase(Constants.IS_MUSIC))
+            uri = getExtUri(pos);
+        else
+            uri = getInternalUri(pos);
+        try {
 
-        Intent intent = new Intent(RingdroidSelectActivity.this, ChooseContactActivity.class);
-        if (mData.get(pos).mFileType.equalsIgnoreCase(Constants.IS_RINGTONE)) {
-            intent.putExtra(Constants.FILE_NAME, String.valueOf(getInternalUri(pos)));
-        } else if (mData.get(pos).mFileType.equalsIgnoreCase(Constants.IS_MUSIC)) {
-            intent.putExtra(Constants.FILE_NAME, String.valueOf(getExtUri(pos)));
-        } else {
-            intent.putExtra(Constants.FILE_NAME, String.valueOf(getInternalUri(pos)));
+            Intent intent = new Intent(Intent.ACTION_EDIT, uri);
+            intent.setClassName(
+                    "com.mghstudio.ringtonemaker",
+                    "com.mghstudio.ringtonemaker.Activities.ChooseContactActivity");
+            startActivityForResult(intent, REQUEST_CODE_CHOOSE_CONTACT);
+        } catch (Exception e) {
+            Log.e("Ringdroid", "Couldn't open Choose Contact window");
         }
-        startActivity(intent);
 
-        return true;
     }
 
-    private void confirmDelete(int pos) {
+    private void confirmDelete(final int pos) {
         // See if the selected list item was created by Ringdroid to
         // determine which alert message to show
 
@@ -453,7 +467,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int whichButton) {
-                                onDelete();
+                                onDelete(pos);
                             }
                         })
                 .setNegativeButton(
@@ -463,29 +477,29 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
                                                 int whichButton) {
                             }
                         })
-                .setCancelable(true)
+                .setCancelable(false)
                 .show();
+
     }
 
-    private void onDelete() {
-//        Cursor c = mAdapter.getCursor();
-//        int dataIndex = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
-//        String filename = c.getString(dataIndex);
-//
-//        int uriIndex = getUriIndex(c);
-//        if (uriIndex == -1) {
-//            showFinalAlert(getResources().getText(R.string.delete_failed));
-//            return;
-//        }
-//
+    private void onDelete(int mPos) {
+        Uri uri;
+        if (mData.get(mPos).mFileType.equalsIgnoreCase(Constants.IS_MUSIC))
+            uri = getExtUri(mPos);
+        else
+            uri = getInternalUri(mPos);
+        String filename = mData.get(mPos).mPath;
+
 //        if (!new File(filename).delete()) {
 //            showFinalAlert(getResources().getText(R.string.delete_failed));
 //        }
-//
-//        String itemUri = c.getString(uriIndex) + "/" + c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-//        getContentResolver().delete(Uri.parse(itemUri), null, null);
-    }
 
+
+        getContentResolver().delete(uri, null, null);
+        Log.d("tuancon111", "" + getContentResolver().delete(uri, null, null));
+//        mSongsAdapter.notifyDataSetChanged();
+
+    }
     private void showFinalAlert(CharSequence message) {
         new AlertDialog.Builder(RingdroidSelectActivity.this)
                 .setTitle(getResources().getText(R.string.alert_title_failure))
@@ -532,7 +546,7 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
     @Override
     public boolean onQueryTextChange(String newText) {
         mData.clear();
-        mData.addAll(Utils.getSongList(getApplicationContext(), true, newText));
+//        mData.addAll(Utils.getSongList(getApplicationContext(), true, newText));
         mData.addAll(Utils.getSongList(getApplicationContext(), false, newText));
         mSongsAdapter.updateData(mData);
         return false;
