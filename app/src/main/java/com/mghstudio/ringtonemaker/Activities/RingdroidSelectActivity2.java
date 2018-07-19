@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -27,10 +28,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.ads.AdSize;
+import com.facebook.ads.AdView;
 import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.mghstudio.ringtonemaker.Ringdroid.soundfile.SoundFile;
@@ -122,20 +126,30 @@ public class RingdroidSelectActivity2
             showFinalAlert(getResources().getText(R.string.no_sdcard));
             return;
         }
+        // Inflate our UI from its XML layout description.
+        setContentView(R.layout.media_select2);
+        AdView adView;
+        adView = new AdView(this, "2199797023369826_2199798086703053", AdSize.BANNER_HEIGHT_50);
+
+        // Find the Ad Container
+        RelativeLayout adContainer = findViewById(R.id.baner1);
+
+        // Add the ad view to your activity layout
+        adContainer.addView(adView);
+
+        // Request an ad
+        adView.loadAd();
 
         Intent intent = getIntent();
 //        mWasGetContentIntent = intent.getAction().equals(Intent.ACTION_GET_CONTENT);
 
-        // Inflate our UI from its XML layout description.
-        setContentView(R.layout.media_select2);
+
 
         listview = findViewById(android.R.id.list);
 
-        mToolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         try {
             mAdapter = new SimpleCursorAdapter(
@@ -159,13 +173,13 @@ public class RingdroidSelectActivity2
                             R.id.overflow},
                     0);
 
-            listview.setAdapter(mAdapter);
+            setListAdapter(mAdapter);
 
-            listview.setItemsCanFocus(false);
+            getListView().setItemsCanFocus(true);
 
             // Normal click - open the editor
-            listview.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
-            listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            getListView().setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
+            getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent,
                                         View view, int position, long id) {
                     startRingdroidEditor();
@@ -216,8 +230,8 @@ public class RingdroidSelectActivity2
         registerForContextMenu(getListView());
     }
 
-    private void setDurationFromCursor(TextView view, Cursor cursor) {
-        String temp = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
+    private void setDurationFromCursor(TextView view, @NonNull Cursor cursor) {
+        String temp = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
         if (temp != null)
             view.setText(Utils.makeShortTimeString(getApplicationContext(), Integer.parseInt(temp) / 1000));
     }
