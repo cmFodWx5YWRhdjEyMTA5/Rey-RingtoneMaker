@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = 0; i < permissions.length; i++)
                         perms.put(permissions[i], grantResults[i]);
                     if (perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        Intent select = new Intent(getApplicationContext(), RingdroidSelectActivity.class);
+                        Intent select = new Intent(getApplicationContext(), RingdroidSelectActivity2.class);
                         startActivity(select);
                     }
                 }
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 1:
                         if (Utils.checkAndRequestPermissions(MainActivity.this, true)) {
-                            Intent i = new Intent(MainActivity.this, RingdroidSelectActivity.class);
+                            Intent i = new Intent(MainActivity.this, RingdroidSelectActivity2.class);
                             startActivity(i);
                         }
 
