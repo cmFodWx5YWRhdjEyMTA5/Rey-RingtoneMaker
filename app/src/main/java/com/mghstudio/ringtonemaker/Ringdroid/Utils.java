@@ -12,6 +12,7 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -241,14 +242,26 @@ public class Utils {
                         "LAST_TIME_CONTACTED DESC, " +
                         "DISPLAY_NAME ASC");
 
+        Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE);
+        if (defaultRingtoneUri == null) {
+            // if ringtone_uri is null get Default Ringtone
+            defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 
+        }
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                ContactsModel contactsModel = new ContactsModel(cursor.getString(2),
-                        cursor.getString(0), (cursor.getString(1)));
+                Uri customUri;
+                if (cursor.getString(1) == null) {
+                    customUri = defaultRingtoneUri;
+                } else {
+                    customUri = Uri.parse(cursor.getString(1));
+                }
+                ContactsModel contactsModel = new ContactsModel(cursor.getString(2), cursor.getString(0), customUri);
                 contactsModels.add(contactsModel);
             } while (cursor.moveToNext());
         }
+        if (cursor != null)
+            cursor.close();
 
         return contactsModels;
     }

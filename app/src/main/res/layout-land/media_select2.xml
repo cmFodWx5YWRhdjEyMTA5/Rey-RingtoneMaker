@@ -8,12 +8,14 @@
     android:orientation="vertical">
 
 
-
     <ListView
         android:id="@+id/android:list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/baner1">
+        android:layout_above="@+id/baner1"
+
+        android:focusable="true">
+
         <requestFocus />
     </ListView>
 

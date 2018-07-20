@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2015 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.mghstudio.ringtonemaker.Ringdroid;
 
 import android.media.AudioFormat;
@@ -25,22 +9,7 @@ import com.mghstudio.ringtonemaker.Ringdroid.soundfile.SoundFile;
 import java.nio.ShortBuffer;
 
 public class SamplePlayer {
-    public interface OnCompletionListener {
-        public void onCompletion();
-    }
-
-    private ShortBuffer mSamples;
-    private int mSampleRate;
-    private int mChannels;
-    private int mNumSamples;  // Number of samples per channel.
-    private AudioTrack mAudioTrack;
-    private short[] mBuffer;
-    private int mPlaybackStart;  // Start offset, in samples.
-    private Thread mPlayThread;
-    private boolean mKeepPlaying;
-    private OnCompletionListener mListener;
-
-    public SamplePlayer(ShortBuffer samples, int sampleRate, int channels, int numSamples) {
+    private SamplePlayer(ShortBuffer samples, int sampleRate, int channels, int numSamples) {
         mSamples = samples;
         mSampleRate = sampleRate;
         mChannels = channels;
@@ -84,21 +53,16 @@ public class SamplePlayer {
         mListener = null;
     }
 
-    public SamplePlayer(SoundFile sf) {
-        this(sf.getSamples(), sf.getSampleRate(), sf.getChannels(), sf.getNumSamples());
-    }
-
-    public void setOnCompletionListener(OnCompletionListener listener) {
-        mListener = listener;
-    }
-
-    public boolean isPlaying() {
-        return mAudioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
-    }
-
-    public boolean isPaused() {
-        return mAudioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
-    }
+    private ShortBuffer mSamples;
+    private int mSampleRate;
+    private int mChannels;
+    private int mNumSamples;  // Number of samples per channel.
+    private AudioTrack mAudioTrack;
+    private short[] mBuffer;
+    private int mPlaybackStart;  // Start offset, in samples.
+    private Thread mPlayThread;
+    private boolean mKeepPlaying;
+    private OnCompletionListener mListener;
 
     public void start() {
         if (isPlaying()) {
@@ -124,7 +88,7 @@ public class SamplePlayer {
                         }
                         mSamples.get(mBuffer, 0, numSamplesLeft);
                     }
-                    // TODO(nfaralli): use the write method that takes a ByteBuffer as argument.
+                    //  use the write method that takes a ByteBuffer as argument.
                     mAudioTrack.write(mBuffer, 0, mBuffer.length);
                 }
             }
@@ -132,11 +96,20 @@ public class SamplePlayer {
         mPlayThread.start();
     }
 
-    public void pause() {
-        if (isPlaying()) {
-            mAudioTrack.pause();
-            // mAudioTrack.write() should block if it cannot write.
-        }
+    public SamplePlayer(SoundFile sf) {
+        this(sf.getSamples(), sf.getSampleRate(), sf.getChannels(), sf.getNumSamples());
+    }
+
+    public void setOnCompletionListener(OnCompletionListener listener) {
+        mListener = listener;
+    }
+
+    public boolean isPlaying() {
+        return mAudioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
+    }
+
+    public boolean isPaused() {
+        return mAudioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
     }
 
     public void stop() {
@@ -148,11 +121,23 @@ public class SamplePlayer {
                 try {
                     mPlayThread.join();
                 } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
                 mPlayThread = null;
             }
             mAudioTrack.flush();  // just in case...
         }
+    }
+
+    public void pause() {
+        if (isPlaying()) {
+            mAudioTrack.pause();
+            // mAudioTrack.write() should block if it cannot write.
+        }
+    }
+
+    public interface OnCompletionListener {
+        void onCompletion();
     }
 
     public void release() {

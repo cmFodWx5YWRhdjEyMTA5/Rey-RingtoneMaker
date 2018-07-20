@@ -50,6 +50,7 @@
          for what to do with them -->
     <string name="what_to_do_with_ringtone">Saved!  Make this your default ringtone or assign it to a contact?</string>
     <string name="set_default_notification">Saved!  Make this your default notification?</string>
+    <string name="success">Success</string>
 
     <string name="make_default_ringtone_button">Make Default</string>
     <string name="choose_contact_ringtone_button">Assign to Contact</string>
