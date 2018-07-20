@@ -17,7 +17,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -27,7 +27,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -55,7 +54,7 @@ import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_RECORD_
  */
 public class RingdroidSelectActivity2
         extends AppCompatPreferenceActivity
-        implements LoaderManager.LoaderCallbacks<Cursor> {
+        implements SearchView.OnCloseListener, LoaderManager.LoaderCallbacks<Cursor> {
     // Result codes
     private static final int REQUEST_CODE_EDIT = 1;
     private static final int REQUEST_CODE_CHOOSE_CONTACT = 2;
@@ -94,12 +93,10 @@ public class RingdroidSelectActivity2
     private static final int EXTERNAL_CURSOR_ID = 1;
     private SearchView mFilter;
     private SimpleCursorAdapter mAdapter;
-    private boolean mWasGetContentIntent;
     private boolean mShowAll;
     private Cursor mInternalCursor;
     private Cursor mExternalCursor;
-    private Toolbar mToolbar;
-    private ListView listview;
+    private String mCurFilter;
 
     public RingdroidSelectActivity2() {
     }
@@ -139,17 +136,7 @@ public class RingdroidSelectActivity2
 
         // Request an ad
         adView.loadAd();
-
-        Intent intent = getIntent();
-//        mWasGetContentIntent = intent.getAction().equals(Intent.ACTION_GET_CONTENT);
-
-
-
-        listview = findViewById(android.R.id.list);
-
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 
         try {
             mAdapter = new SimpleCursorAdapter(
@@ -174,7 +161,7 @@ public class RingdroidSelectActivity2
                     0);
 
             setListAdapter(mAdapter);
-
+            getLoaderManager().initLoader(0, null, this);
             getListView().setItemsCanFocus(true);
 
             // Normal click - open the editor
@@ -268,7 +255,7 @@ public class RingdroidSelectActivity2
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_ID_RECORD_AUDIO_PERMISSION:
                 Map<String, Integer> perms = new HashMap<>();
@@ -314,6 +301,14 @@ public class RingdroidSelectActivity2
     }
 
     @Override
+    public boolean onClose() {
+        if (!TextUtils.isEmpty(mFilter.getQuery())) {
+            mFilter.setQuery(null, true);
+        }
+        return true;
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.select_options, menu);
@@ -322,6 +317,14 @@ public class RingdroidSelectActivity2
         if (mFilter != null) {
             mFilter.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 public boolean onQueryTextChange(String newText) {
+                    String newFilter = !TextUtils.isEmpty(newText) ? newText : null;
+                    if (mCurFilter == null && newFilter == null) {
+                        return true;
+                    }
+                    if (mCurFilter != null && mCurFilter.equals(newFilter)) {
+                        return true;
+                    }
+                    mCurFilter = newFilter;
                     refreshListView();
                     return true;
                 }
@@ -494,11 +497,10 @@ public class RingdroidSelectActivity2
         Cursor c = mAdapter.getCursor();
         String artist = c.getString(c.getColumnIndexOrThrow(
                 MediaStore.Audio.Media.ARTIST));
-        CharSequence ringdroidArtist =
-                getResources().getText(R.string.artist_name);
+        String ringdroidArtist = "" + getResources().getText(R.string.artist_name);
 
         CharSequence message;
-        if (artist.equals(ringdroidArtist)) {
+        if (artist != null && artist.equalsIgnoreCase(ringdroidArtist)) {
             message = getResources().getText(
                     R.string.confirm_delete_ringdroid);
         } else {
@@ -622,7 +624,7 @@ public class RingdroidSelectActivity2
     /* Implementation of LoaderCallbacks.onCreateLoader */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        ArrayList<String> selectionArgsList = new ArrayList<String>();
+        ArrayList<String> selectionArgsList = new ArrayList<>();
         String selection;
         Uri baseUri;
         String[] projection;

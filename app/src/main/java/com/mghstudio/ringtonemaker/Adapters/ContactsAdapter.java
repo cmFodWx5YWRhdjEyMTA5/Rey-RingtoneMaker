@@ -1,5 +1,6 @@
 package com.mghstudio.ringtonemaker.Adapters;
 
+import android.media.RingtoneManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,10 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Activities.ChooseContactActivity;
 import com.mghstudio.ringtonemaker.Models.ContactsModel;
-import com.mghstudio.ringtonemaker.Ringdroid.Utils;
+import com.mghstudio.ringtonemaker.R;
 
 import java.util.ArrayList;
 
@@ -41,14 +41,12 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ItemHo
     @Override
     public void onBindViewHolder(ContactsAdapter.ItemHolder holder, int position) {
         holder.mContactName.setText(mData.get(position).mName);
+        if (mData.get(position).mRingtone == null) {
+            mData.get(position).mRingtone = RingtoneManager.getRingtone(mChooseContactActivity, mData.get(position).mUri).getTitle(mChooseContactActivity);
+            holder.mContactDefault.setText(mData.get(position).mRingtone);
+        } else
+            holder.mContactDefault.setText(mData.get(position).mRingtone);
 
-        try {
-            String letter = String.valueOf(mData.get(position).mName.charAt(0));
-//            holder.mOneLetter.setText(letter);
-            holder.mContactImage.setBackgroundColor(Utils.getMatColor(mChooseContactActivity.getApplicationContext()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -64,11 +62,13 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ItemHo
     public class ItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView mContactName;
         private ImageView mContactImage;
+        private TextView mContactDefault;
 
         private ItemHolder(View itemView) {
             super(itemView);
-            mContactName = (TextView) itemView.findViewById(R.id.contact_name);
-            mContactImage = (ImageView) itemView.findViewById(R.id.one_letter);
+            mContactName = itemView.findViewById(R.id.contact_name);
+            mContactImage = itemView.findViewById(R.id.one_letter);
+            mContactDefault = itemView.findViewById(R.id.contact_default);
             itemView.setOnClickListener(this);
         }
 

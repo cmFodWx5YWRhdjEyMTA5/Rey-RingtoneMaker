@@ -2,6 +2,7 @@ package com.mghstudio.ringtonemaker.Activities;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract.Contacts;
@@ -18,6 +19,7 @@ import com.mghstudio.ringtonemaker.Adapters.ContactsAdapter;
 import com.mghstudio.ringtonemaker.Models.ContactsModel;
 import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.util.ArrayList;
 
@@ -53,6 +55,12 @@ public class ChooseContactActivity extends AppCompatActivity implements SearchVi
 
 
         mRecyclerView = findViewById(R.id.recycler_view);
+        mRecyclerView.addItemDecoration(
+                new HorizontalDividerItemDecoration.Builder(getApplicationContext())
+                        .color(Color.parseColor("#dadde2"))
+                        .sizeResId(R.dimen.divider)
+                        .marginResId(R.dimen.leftmargin, R.dimen.rightmargin)
+                        .build());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         mData = Utils.getContacts(this, "");
         mContactsAdapter = new ContactsAdapter(this, mData);

@@ -27,12 +27,23 @@
               android:orientation="vertical">
 
     <TextView
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginBottom="20sp"
+        android:layout_marginLeft="15sp"
+        android:layout_marginRight="15sp"
+        android:layout_marginTop="15sp"
+        android:text="@string/success"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="15sp"
         android:layout_marginLeft="15sp"
         android:layout_marginRight="15sp"
-        android:layout_marginTop="15sp"
+
         android:gravity="center"
         android:text="@string/what_to_do_with_ringtone"
         android:textAppearance="?android:attr/textAppearanceSmall"
