@@ -18,8 +18,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,9 +35,7 @@ import java.util.ArrayList;
 
 public class ContactActivity extends AppCompatActivity {
 
-    private Toolbar mToolbar;
-    private SearchView mSearchView;
-    private RecyclerView mRecyclerView;
+
     private AllContactsAdapter mContactsAdapter;
     private ArrayList<ContactsModel> mData;
     Uri mRingtoneUri;
@@ -74,7 +70,7 @@ public class ContactActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-
+        RecyclerView mRecyclerView;
         mRecyclerView = findViewById(R.id.contact_recyclerView);
         mRecyclerView.addItemDecoration(
                 new HorizontalDividerItemDecoration.Builder(getApplicationContext())
@@ -87,6 +83,16 @@ public class ContactActivity extends AppCompatActivity {
         mData = getContacts(getApplicationContext());
         mContactsAdapter = new AllContactsAdapter(this, mData);
         mRecyclerView.setAdapter(mContactsAdapter);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (md != null) {
+            md.release();
+            md = null;
+        }
 
     }
 
@@ -168,6 +174,7 @@ public class ContactActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(ContactActivity.this);
         builder.setTitle("Choose a Ringtone");
         String defaultRingtone = "Default ringtone";
+        list.clear();
         list.add(defaultRingtone);
         list.addAll(getListRingtones());
         String[] songs = new String[list.size()];
@@ -204,9 +211,6 @@ public class ContactActivity extends AppCompatActivity {
                             md.start();
                         } catch (Exception e) {
                             e.printStackTrace();
-//                            mRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-//                            Ringtone ringtoneAlarm = RingtoneManager.getRingtone(getApplicationContext(), mRingtoneUri);
-//                            ringtoneAlarm.play();
                         }
                     }
                     isClicked = true;

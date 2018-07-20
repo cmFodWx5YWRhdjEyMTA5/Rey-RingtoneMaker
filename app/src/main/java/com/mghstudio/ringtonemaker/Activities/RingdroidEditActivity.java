@@ -33,6 +33,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.kobakei.ratethisapp.RateThisApp;
 import com.mghstudio.ringtonemaker.Dialogs.AfterSaveActionDialog;
 import com.mghstudio.ringtonemaker.Dialogs.FileSaveDialog;
 import com.mghstudio.ringtonemaker.R;
@@ -188,6 +189,15 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         }
 
         super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mPlayer != null) {
+            mPlayer.pause();
+        }
+
     }
 
     /**
@@ -593,7 +603,10 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         } else {
             recordAudio();
         }
-
+        RateThisApp.Config config = new RateThisApp.Config();
+        config.setMessage(R.string.rate_5_stars);
+        RateThisApp.init(config);
+        RateThisApp.onCreate(RingdroidEditActivity.this);
 
     }
 
@@ -1399,6 +1412,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         }
     }
 
+
     private void chooseContactForRingtone(Uri uri) {
         try {
             Intent intent = new Intent(Intent.ACTION_EDIT, uri);
@@ -1612,14 +1626,14 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                                 R.string.default_ringtone_success_message,
                                 Toast.LENGTH_SHORT)
                                 .show();
-                        finish();
+                        RateThisApp.showRateDialog(RingdroidEditActivity.this);
                         break;
                     case R.id.button_choose_contact:
                         chooseContactForRingtone(newUri);
                         break;
                     default:
                     case R.id.button_do_nothing:
-                        finish();
+                        RateThisApp.showRateDialog(RingdroidEditActivity.this);
                         break;
                 }
             }

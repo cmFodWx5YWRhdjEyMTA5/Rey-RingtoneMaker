@@ -84,6 +84,8 @@
     <string name="menu_reset">Reset</string>
     <string name="menu_about">About</string>
     <string name="menu_show_all_audio">Show All Audio</string>
+    <string name="rate_5_stars">I am a programmer working very hard to give you the best free application.
+    Your 5-star review is worth more than all money. Please write a nice review in Google Play to encourage me!</string>
 
     <!--
      Context menu items
