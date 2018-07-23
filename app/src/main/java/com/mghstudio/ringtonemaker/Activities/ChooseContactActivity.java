@@ -50,7 +50,8 @@ public class ChooseContactActivity extends AppCompatActivity implements SearchVi
         mData = new ArrayList<>();
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle(R.string.contacts);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle(R.string.contacts);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 

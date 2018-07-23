@@ -6,18 +6,11 @@
         android:icon="@drawable/magnify"
         android:title="@string/search"
         app:actionViewClass="android.support.v7.widget.SearchView"
-        app:showAsAction="always|collapseActionView"
+        app:showAsAction="ifRoom|collapseActionView"
         />
-
     <item
         android:id="@+id/action_record"
         android:icon="@drawable/microphone"
         android:title="@string/button_start_record_activity"
         app:showAsAction="always|collapseActionView" />
-
-    <!-- <item
-         android:id="@+id/scan"
-         android:icon="@drawable/reload_24"
-         android:title="@string/button_start_record_activity"
-         app:showAsAction="always|collapseActionView" />-->
 </menu>

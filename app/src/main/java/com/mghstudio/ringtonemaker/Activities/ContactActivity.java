@@ -18,7 +18,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
@@ -29,6 +32,7 @@ import com.facebook.ads.AdView;
 import com.mghstudio.ringtonemaker.Adapters.AllContactsAdapter;
 import com.mghstudio.ringtonemaker.Models.ContactsModel;
 import com.mghstudio.ringtonemaker.R;
+import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.util.ArrayList;
@@ -43,7 +47,7 @@ public class ContactActivity extends AppCompatActivity {
     String stringUri;
     String ringtoneName;
     private int checked = 0;
-
+    private String mCurFilter;
     private MediaPlayer md;
     private boolean isClicked = false;
 
@@ -94,6 +98,42 @@ public class ContactActivity extends AppCompatActivity {
             md = null;
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        SearchView mFilter;
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        mFilter = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+
+        if (mFilter != null) {
+            mFilter.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    String newFilter = !TextUtils.isEmpty(newText) ? newText : null;
+                    if (mCurFilter == null && newFilter == null) {
+                        return true;
+                    }
+                    if (mCurFilter != null && mCurFilter.equals(newFilter)) {
+                        return true;
+                    }
+                    mCurFilter = newFilter;
+                    mData = Utils.getContacts(getApplicationContext(), newText);
+                    mContactsAdapter.updateData(mData);
+                    return true;
+                }
+            });
+            mFilter.setQueryHint(getString(R.string.search_library));
+
+//            mFilter.setIconifiedByDefault(false);
+            mFilter.setIconified(false);
+        }
+        return true;
     }
 
     @Override

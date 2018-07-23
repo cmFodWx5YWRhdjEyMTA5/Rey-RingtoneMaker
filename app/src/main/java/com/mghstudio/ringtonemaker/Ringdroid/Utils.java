@@ -3,15 +3,12 @@ package com.mghstudio.ringtonemaker.Ringdroid;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -21,6 +18,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.util.TypedValue;
 
 import com.mghstudio.ringtonemaker.Models.ContactsModel;
@@ -39,6 +37,9 @@ import java.util.List;
 import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_MULTIPLE_PERMISSIONS;
 import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_READ_CONTACTS_PERMISSION;
 import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_RECORD_AUDIO_PERMISSION;
+
+//import android.content.res.TypedArray;
+//import android.graphics.Color;
 
 /**
  * Created by REYANSH on 4/8/2017.
@@ -111,7 +112,7 @@ public class Utils {
         if (cursor != null && cursor.moveToFirst()) {
             do {
 
-                String fileType = "";
+                String fileType;
                 try {
                     if (cursor.getString(6).equalsIgnoreCase("1")) {
                         fileType = Constants.IS_RINGTONE;
@@ -147,13 +148,13 @@ public class Utils {
         return songsModels;
     }
 
-    public static Uri getAlbumArtUri(long paramInt) {
+   /* public static Uri getAlbumArtUri(long paramInt) {
         return ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), paramInt);
     }
 
     public static String getAlbumArtUriString(long paramInt) {
         return "content://media/external/audio/albumart" + paramInt;
-    }
+    }*/
 
 
     public static String makeShortTimeString(final Context context, long secs) {
@@ -188,6 +189,7 @@ public class Utils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             retVal = Settings.System.canWrite(context);
             if (retVal) {
+                Log.d("TAG", "Can Write Settings ");
             } else {
                 new AlertDialog.Builder(context)
                         .setTitle(R.string.set_ringtone)
@@ -266,7 +268,7 @@ public class Utils {
     }
 
 
-    public static int getMatColor(Context context) {
+    /*public static int getMatColor(Context context) {
         int returnColor;
         {
             TypedArray colors = context.getResources().obtainTypedArray(R.array.mdcolor_500);
@@ -275,11 +277,10 @@ public class Utils {
             colors.recycle();
         }
         return returnColor;
-    }
+    }*/
 
     public static boolean checkAndRequestPermissions(Activity activity, boolean ask) {
         int modifyAudioPermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
-        int readContact = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS);
         List<String> listPermissionsNeeded = new ArrayList<>();
 
         if (modifyAudioPermission != PackageManager.PERMISSION_GRANTED) {
