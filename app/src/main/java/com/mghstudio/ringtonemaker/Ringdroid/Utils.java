@@ -220,6 +220,48 @@ public class Utils {
         return (int) TypedValue.applyDimension(0, dp, context.getResources().getDisplayMetrics());
     }
 
+    public static ArrayList<ContactsModel> getContacts(Context ctx) {
+        ArrayList<ContactsModel> contactsModels = new ArrayList<>();
+
+        Cursor cursor = ctx.getContentResolver().query(
+                ContactsContract.Contacts.CONTENT_URI,
+                new String[]{
+                        ContactsContract.Contacts._ID,
+                        ContactsContract.Contacts.CUSTOM_RINGTONE,
+                        ContactsContract.Contacts.DISPLAY_NAME,
+                        ContactsContract.Contacts.LAST_TIME_CONTACTED,
+                        ContactsContract.Contacts.STARRED,
+                        ContactsContract.Contacts.TIMES_CONTACTED},
+                null,
+                null,
+                "STARRED DESC, " +
+                        "TIMES_CONTACTED DESC, " +
+                        "LAST_TIME_CONTACTED DESC, " +
+                        "DISPLAY_NAME ASC");
+
+        Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(ctx, RingtoneManager.TYPE_RINGTONE);
+        if (defaultRingtoneUri == null) {
+            // if ringtone_uri is null get Default Ringtone
+            defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+
+        }
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                Uri customUri;
+                if (cursor.getString(1) == null) {
+                    customUri = defaultRingtoneUri;
+                } else {
+                    customUri = Uri.parse(cursor.getString(1));
+                }
+                ContactsModel contactsModel = new ContactsModel(cursor.getString(2), cursor.getString(0), customUri);
+                contactsModels.add(contactsModel);
+            } while (cursor.moveToNext());
+        }
+        if (cursor != null)
+            cursor.close();
+
+        return contactsModels;
+    }
 
     public static ArrayList<ContactsModel> getContacts(Context context, String searchQuery) {
 
@@ -281,10 +323,15 @@ public class Utils {
 
     public static boolean checkAndRequestPermissions(Activity activity, boolean ask) {
         int modifyAudioPermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int readContacts = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS);
         List<String> listPermissionsNeeded = new ArrayList<>();
 
         if (modifyAudioPermission != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+
+        if (readContacts != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.READ_CONTACTS);
         }
 
         if (!listPermissionsNeeded.isEmpty()) {

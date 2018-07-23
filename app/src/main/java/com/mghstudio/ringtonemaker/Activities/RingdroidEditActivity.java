@@ -1616,7 +1616,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                 int actionId = response.arg1;
                 switch (actionId) {
                     case R.id.button_make_default:
-                        if (Utils.checkSystemWritePermission(RingdroidEditActivity.this)) return;
+                        if (!Utils.checkSystemWritePermission(RingdroidEditActivity.this)) return;
                         RingtoneManager.setActualDefaultRingtoneUri(
                                 RingdroidEditActivity.this,
                                 RingtoneManager.TYPE_RINGTONE,
@@ -1624,12 +1624,14 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                         Toast.makeText(
                                 RingdroidEditActivity.this,
                                 R.string.default_ringtone_success_message,
-                                Toast.LENGTH_SHORT)
+                                Toast.LENGTH_LONG)
                                 .show();
                         RateThisApp.showRateDialog(RingdroidEditActivity.this);
                         break;
                     case R.id.button_choose_contact:
-                        chooseContactForRingtone(newUri);
+                        if (Utils.checkAndRequestContactsPermissions(RingdroidEditActivity.this)) {
+                            chooseContactForRingtone(newUri);
+                        }
                         break;
                     default:
                     case R.id.button_do_nothing:
@@ -1644,6 +1646,26 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                 this, message);
         dlog.show();
     }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        switch (requestCode) {
+//            case REQUEST_ID_READ_CONTACTS_PERMISSION: {
+//                Map<String, Integer> perms = new HashMap<>();
+//                perms.put(Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+//
+//                if (grantResults.length > 0) {
+//                    for (int i = 0; i < permissions.length; i++)
+//                        perms.put(permissions[i], grantResults[i]);
+//                    if (perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+//                        Intent contact = new Intent(getApplicationContext(), ChooseContactActivity.class);
+//                        startActivity(contact);
+//                    }
+//                }
+//                break;
+//            }
+//        }
+//    }
+
 
     private long getCurrentTime() {
         return System.nanoTime() / 1000000;

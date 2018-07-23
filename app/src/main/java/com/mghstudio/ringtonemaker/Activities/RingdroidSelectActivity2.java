@@ -402,13 +402,18 @@ public class RingdroidSelectActivity2
                 confirmDelete();
                 return true;
             case CMD_SET_AS_DEFAULT:
-                setAsDefaultRingtoneOrNotification();
-                return true;
+                if (!Utils.checkSystemWritePermission(RingdroidSelectActivity2.this))
+                    return false;
+                else {
+                    setAsDefaultRingtoneOrNotification();
+                    return true;
+                }
             case CMD_SET_AS_CONTACT:
                 if (Utils.checkAndRequestContactsPermissions(RingdroidSelectActivity2.this)) {
                     chooseContactForRingtone();
                     return true;
-                } else return false;
+                } else
+                    return false;
 
 //                return chooseContactForRingtone(item);
             default:
@@ -418,7 +423,7 @@ public class RingdroidSelectActivity2
 
     private void setAsDefaultRingtoneOrNotification() {
         Cursor c = mAdapter.getCursor();
-
+        Uri uri = getUri();
         // If the item is a ringtone then set the default ringtone,
         // otherwise it has to be a notification so set the default notification sound
         if (0 != c.getInt(c.getColumnIndexOrThrow(MediaStore.Audio.Media.IS_RINGTONE))) {

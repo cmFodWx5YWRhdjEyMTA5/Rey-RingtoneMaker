@@ -63,7 +63,7 @@ public class ChooseContactActivity extends AppCompatActivity implements SearchVi
                         .marginResId(R.dimen.leftmargin, R.dimen.rightmargin)
                         .build());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        mData = Utils.getContacts(this, "");
+        mData = Utils.getContacts(this);
         mContactsAdapter = new ContactsAdapter(this, mData);
         mRecyclerView.setAdapter(mContactsAdapter);
     }

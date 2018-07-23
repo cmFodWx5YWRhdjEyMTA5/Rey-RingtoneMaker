@@ -99,7 +99,6 @@ public class ContactActivity extends AppCompatActivity {
         }
 
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         SearchView mFilter;
@@ -129,9 +128,6 @@ public class ContactActivity extends AppCompatActivity {
                 }
             });
             mFilter.setQueryHint(getString(R.string.search_library));
-
-//            mFilter.setIconifiedByDefault(false);
-            mFilter.setIconified(false);
         }
         return true;
     }
