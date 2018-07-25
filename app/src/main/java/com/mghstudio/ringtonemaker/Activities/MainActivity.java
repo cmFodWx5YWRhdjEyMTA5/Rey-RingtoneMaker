@@ -3,10 +3,12 @@ package com.mghstudio.ringtonemaker.Activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -30,17 +32,60 @@ public class MainActivity extends AppCompatActivity {
 
     private GridView gridView;
     private AdView adView;
-
-
+    private Bitmap bitmap;
     private static final String[] items = new String[]{
             "Contacts", "Ringtone", "Settings", "More apps"};
+
+   /* LocalBroadcastManager mLocalBroadcastManager;
+    BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction() != null && intent.getAction().equals(getPackageName()+".closeapp")){
+                if(Build.VERSION.SDK_INT<21){
+                    finishAffinity();
+                } else {
+                    finishAndRemoveTask();
+                }
+            }
+        }
+    };*/
 
     @Override
     protected void onDestroy() {
         if (adView != null) {
             adView.destroy();
         }
+
         super.onDestroy();
+//        mLocalBroadcastManager.unregisterReceiver(mBroadcastReceiver);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+//        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.about_50);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+//            setTaskDescription(new ActivityManager.TaskDescription("onPause", bitmap,
+//                    ContextCompat.getColor(getApplicationContext(),R.color.tuan)));
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+//        setTitle("Ringtone Creator");
+//        bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.icon512);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+//            setTaskDescription(new ActivityManager.TaskDescription("OnStart", bitmap,
+//                    ContextCompat.getColor(getApplicationContext(),R.color.colorPrimary)));
+//
+//        Log.d("abc", "onStart");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
     }
 
     @Override
@@ -83,13 +128,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        requestUsageStatsPermission();
+        Log.d("abc", "onCreate");
+        setTitle("");
         Intent myIntent = new Intent(MainActivity.this, runningService.class);
-        this.startService(myIntent);
+        startService(myIntent);
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
         adView = new AdView(this, "2199797023369826_2199797623369766", AdSize.RECTANGLE_HEIGHT_250);
+//        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.about_50);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+//            setTaskDescription(new ActivityManager.TaskDescription("onCreate", bitmap,
+//                    ContextCompat.getColor(getApplicationContext(),R.color.tuan)));
+//
+//        mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
+//        IntentFilter mIntentFilter = new IntentFilter();
+//        mIntentFilter.addAction(getPackageName()+".closeapp");
+//        mLocalBroadcastManager.registerReceiver(mBroadcastReceiver, mIntentFilter);
+
 
         // Find the Ad Container
         RelativeLayout adContainer = findViewById(R.id.AdView);
@@ -131,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
                         Intent a = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/developer?id=Mini+Apps+VN"));
                         startActivity(a);
                 }
-                return;
             }
         });
 

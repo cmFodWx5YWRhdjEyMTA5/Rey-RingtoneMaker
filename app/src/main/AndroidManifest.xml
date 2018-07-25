@@ -64,6 +64,7 @@
             android:name=".Activities.SettingsActivity"
             android:label="@string/title_activity_settings" />
         <activity android:name=".Activities.RingdroidSelectActivity2"></activity>
+        <activity android:name=".Activities.ShowAds"></activity>
     </application>
 
 </manifest>
