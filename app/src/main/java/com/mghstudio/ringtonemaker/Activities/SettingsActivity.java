@@ -40,7 +40,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
 
-            RateThisApp.Config config = new RateThisApp.Config();
+            RateThisApp.Config config = new RateThisApp.Config(0, 2);
             config.setMessage(R.string.rate_5_stars);
             RateThisApp.init(config);
             RateThisApp.onCreate(getActivity());

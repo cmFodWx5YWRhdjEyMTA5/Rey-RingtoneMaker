@@ -11,13 +11,21 @@ import android.support.v7.app.AppCompatActivity;
 import com.mghstudio.ringtonemaker.R;
 
 public class ShowAds extends AppCompatActivity {
+    private static ShowAds instance;
+
+    public static ShowAds getInstance() {
+        return instance;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.about_50);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.about);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             setTaskDescription(new ActivityManager.TaskDescription("", bitmap,
                     ContextCompat.getColor(getApplicationContext(), R.color.tuan)));
+        if (instance == null)
+            instance = this;
     }
 
 }

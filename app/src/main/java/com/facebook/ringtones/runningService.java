@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -14,71 +16,25 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 import com.mghstudio.ringtonemaker.Activities.ShowAds;
-import com.rvalerio.fgchecker.AppChecker;
-
-import java.util.ArrayList;
-
-//import com.facebook.ads.Ad;
-//import com.facebook.ads.AdError;
-//import com.facebook.ads.InterstitialAd;
-//import com.facebook.ads.InterstitialAdListener;
 
 public class runningService extends Service {
     public static boolean check = false;
-    private ArrayList<String> processLis;
+    private static boolean killedAds = true;
+    private boolean threeDay = false;
+    private long oldTime;
+    private long days_3 = 1000 * 60 * 60 * 24 * 3;
     private Runnable runnableCode;
-    private String firstFG;
-    private String nextFG;
-    private AppChecker appChecker;
-    //    private InterstitialAd interstitialAd;
-//    private InterstitialAd mInterstitialAd;
-    private String TAG = "TAG foreground";
-    private MyBroadcast myBroadcast;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        myBroadcast = new MyBroadcast();
+        MyBroadcast myBroadcast = new MyBroadcast();
         IntentFilter filter = new IntentFilter("android.intent.action.USER_PRESENT");
         registerReceiver(myBroadcast, filter);
-//        ShowAds.mInterstitialAd.loadAd();
-       /* // Google Admob
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-            }
-
-            @Override
-            public void onAdFailedToLoad(int errorCode) {
-                // Code to be executed when an ad request fails.
-            }
-
-            @Override
-            public void onAdOpened() {
-                // Code to be executed when the ad is displayed.
-            }
-
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Code to be executed when when the interstitial ad is closed.
-                mInterstitialAd.loadAd(new AdRequest.Builder().build());
-                check = false;
-                LocalBroadcastManager localBroadcastManager = LocalBroadcastManager
-                        .getInstance(runningService.this);
-                localBroadcastManager.sendBroadcast(new Intent(
-                        getPackageName() + ".closeapp"));
-            }
-        });*/
+        // milli min  hour  day 30day
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("DataCountService", MODE_PRIVATE);
+        oldTime = pref.getLong("timeInstall", 0);
         showAdWithDelay();
 
     }
@@ -93,10 +49,10 @@ public class runningService extends Service {
         runnableCode = new Runnable() {
             @Override
             public void run() {
-                if ((check)) {
-
-
-//                    mInterstitialAd.show();
+                long current = System.currentTimeMillis();
+                if (current - oldTime >= days_3)
+                    threeDay = true;
+                if (check && threeDay) {
                     final InterstitialAd mInterstitialAd;
                     mInterstitialAd = new InterstitialAd(runningService.this);
                     mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
@@ -108,49 +64,35 @@ public class runningService extends Service {
                             // Code to be executed when an ad finishes loading.
                             Intent showAds = new Intent(getApplicationContext(), ShowAds.class);
                             showAds.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(showAds);
-                            mInterstitialAd.show();
-//                            ShowAds.getInstance().showAds(mInterstitialAd);
+                            if (killedAds && check) {
+                                startActivity(showAds);
+                                mInterstitialAd.show();
+                                killedAds = false;
+                            }
                         }
-
-                        @Override
-                        public void onAdFailedToLoad(int errorCode) {
-                            // Code to be executed when an ad request fails.
-                        }
-
-                        @Override
-                        public void onAdOpened() {
-                            // Code to be executed when the ad is displayed.
-                        }
-
-                        @Override
-                        public void onAdLeftApplication() {
-                            // Code to be executed when the user has left the app.
-                        }
-
                         @Override
                         public void onAdClosed() {
-
-                            // Code to be executed when when the interstitial ad is closed.
-//                            mInterstitialAd.loadAd(new AdRequest.Builder().build());
-//                            runningService.check = false;
-
-//                LocalBroadcastManager localBroadcastManager = LocalBroadcastManager
-//                        .getInstance(runningService.this);
-//                localBroadcastManager.sendBroadcast(new Intent(
-//                        getPackageName() + ".closeapp"));
                             check = false;
-                            android.os.Process.killProcess(android.os.Process.myPid());
-
+                            killedAds = true;
+                            try {
+                                if (Build.VERSION.SDK_INT < 21) {
+                                    ShowAds.getInstance().finishAffinity();
+                                } else {
+                                    ShowAds.getInstance().finishAndRemoveTask();
+                                }
+                                android.os.Process.killProcess(android.os.Process.myPid());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
 
                 }
-                handler.postDelayed(runnableCode, 1000 * 10);
+                handler.post(runnableCode);
 //                handler.postDelayed(runnableCode, 1000*3*60);
             }
         };
-        handler.post(runnableCode);
+        handler.postDelayed(runnableCode, 1000 * 10);
     }
 
     public class MyBroadcast extends BroadcastReceiver {

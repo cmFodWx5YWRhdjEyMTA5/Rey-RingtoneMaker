@@ -603,7 +603,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         } else {
             recordAudio();
         }
-        RateThisApp.Config config = new RateThisApp.Config();
+        RateThisApp.Config config = new RateThisApp.Config(0, 2);
         config.setMessage(R.string.rate_5_stars);
         RateThisApp.init(config);
         RateThisApp.onCreate(RingdroidEditActivity.this);
