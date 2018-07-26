@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Creator</string>
+    <string name="app_name">Ringtone Maker Pro</string>
     <string name="ringdroid_app_name">Ringdroid</string>
     <string name="save_as">Save As:</string>
     <string name="uri">/storage/emulated/0/ringtoneMaker</string>

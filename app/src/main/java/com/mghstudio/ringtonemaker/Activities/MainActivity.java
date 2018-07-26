@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences pref = getApplicationContext().getSharedPreferences("DataCountService", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putLong("timeInstall", System.currentTimeMillis());
-        editor.apply();
+        editor.commit();
 
         Intent myIntent = new Intent(MainActivity.this, runningService.class);
         startService(myIntent);
