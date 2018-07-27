@@ -9,16 +9,26 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.RelativeLayout;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.error.VolleyError;
+import com.android.volley.request.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.facebook.ads.AdSize;
 import com.facebook.ads.AdView;
 import com.facebook.ringtones.runningService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mghstudio.ringtonemaker.Adapters.CellAdapter;
+import com.mghstudio.ringtonemaker.Models.Get;
 import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 
@@ -30,9 +40,21 @@ import static com.mghstudio.ringtonemaker.Ringdroid.Constants.REQUEST_ID_READ_CO
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String ENDPOINT = "https://config-app-game-4.firebaseio.com/com_mghstudio_ringtonemaker.json";
+    private final Response.ErrorListener onPostsError = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+
+        }
+    };
+    private RequestQueue requestQueue;
+    private Gson gson;
+    private String delayAds;
     private GridView gridView;
     private AdView adView;
     private Bitmap bitmap;
+    private String percentAds;
+    private SharedPreferences pref;
     private static final String[] items = new String[]{
             "Contacts", "Ringtone", "Settings", "More apps"};
 
@@ -81,17 +103,65 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private SharedPreferences.Editor editor;
+    private final Response.Listener<String> onPostsLoaded = new Response.Listener<String>() {
+        @Override
+        public void onResponse(String response) {
+//            JSONObject jsonObject;
+            Get get = null;
+//            String test = "";
+
+            try {
+//                jsonObject = new JSONObject(response);
+                get = gson.fromJson(response, Get.class);
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (get != null) {
+                delayAds = get.getDELAY();
+                percentAds = get.getPercentAds();
+
+                int int_delayAds = Integer.parseInt(delayAds);
+                int int_percentAds = Integer.parseInt(percentAds);
+
+                editor.putInt("delayAds", int_delayAds);
+                editor.putInt("percentAds", int_percentAds);
+                editor.commit();
+
+                Intent myIntent = new Intent(MainActivity.this, runningService.class);
+                startService(myIntent);
+            }
+
+            Log.i("tuancon91", delayAds + ":" + percentAds);
+        }
+    };
+
+    private void fetchGet() {
+        StringRequest request = new StringRequest(Request.Method.GET, ENDPOINT, onPostsLoaded, onPostsError);
+        requestQueue.add(request);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // time when installing app
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("DataCountService", MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
+        pref = getApplicationContext().getSharedPreferences("DataCountService", MODE_PRIVATE);
+        editor = pref.edit();
         editor.putLong("timeInstall", System.currentTimeMillis());
-        editor.commit();
+        editor.apply();
 
-        Intent myIntent = new Intent(MainActivity.this, runningService.class);
-        startService(myIntent);
+        requestQueue = Volley.newRequestQueue(this);
+
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.setDateFormat("M/d/yy hh:mm a");
+        gson = gsonBuilder.create();
+        fetchGet();
+
+
+
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
@@ -138,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
 
     }
 }

@@ -17,6 +17,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 import com.mghstudio.ringtonemaker.Activities.ShowAds;
 
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -26,12 +27,16 @@ public class runningService extends Service {
     private static boolean killedAds = true;
     private boolean threeDay = false;
     private long oldTime;
-    private long days_3 = 1000 * 60 * 60 * 24 * 2;
+    private long hours;
     private Runnable runnableCode;
     private Handler handler1;
+    private SharedPreferences pref;
+    private int intervel_min;
+
 
     @Override
     public void onCreate() {
+        pref = getApplicationContext().getSharedPreferences("DataCountService", MODE_PRIVATE);
         handler1 = new Handler();
         super.onCreate();
         MyBroadcast myBroadcast = new MyBroadcast();
@@ -39,9 +44,14 @@ public class runningService extends Service {
         registerReceiver(myBroadcast, filter);
 
         // milli min  hour  day 30day
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("DataCountService", MODE_PRIVATE);
+
         oldTime = pref.getLong("timeInstall", 0);
 //        showAdWithDelay();
+        hours = 1000 * 60 * 60;
+        intervel_min = 30;
+//        Log.d("delayAds", delayAds);
+//        Log.d("percentAds", percentAds);
+
         scheduleTask();
     }
 
@@ -53,19 +63,25 @@ public class runningService extends Service {
 
     private void scheduleTask() {
         ScheduledExecutorService scheduleTaskExecutor = Executors.newSingleThreadScheduledExecutor();
+        int delayAds = pref.getInt("delayAds", 0);
 
+        hours = 1000 * 60 * 60 * delayAds;
         // This schedule a runnable task every 2 minutes
         scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
             public void run() {
-                Log.d("tuanvn", "tuancon");
                 try {
                     runnableCode = new Runnable() {
                         @Override
                         public void run() {
                             long current = System.currentTimeMillis();
-                            if (current - oldTime >= days_3)
+                            if (current - oldTime >= hours)
                                 threeDay = true;
-                            if (check && threeDay) {
+
+                            Random r = new Random();
+                            int rand = r.nextInt(100);
+                            int int_percentAds = pref.getInt("percentAds", 0);
+
+                            if (check && threeDay && (rand < int_percentAds)) {
                                 final InterstitialAd mInterstitialAd;
                                 mInterstitialAd = new InterstitialAd(runningService.this);
                                 mInterstitialAd.setAdUnitId("/93656639/longdh_interstitial_1");
@@ -109,58 +125,9 @@ public class runningService extends Service {
                     e.printStackTrace();
                 }
             }
-        }, 0, 30, TimeUnit.MINUTES);
+        }, 30, 5, TimeUnit.MINUTES);
     }
 
-    private void showAdWithDelay() {
-        final Handler handler = new Handler();
-        runnableCode = new Runnable() {
-            @Override
-            public void run() {
-//                long current = System.currentTimeMillis();
-//                if (current - oldTime >= days_3)
-//                    threeDay = true;
-//                if (check && threeDay) {
-//                    final InterstitialAd mInterstitialAd;
-//                    mInterstitialAd = new InterstitialAd(runningService.this);
-//                    mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
-//                    mInterstitialAd.loadAd(new AdRequest.Builder().build());
-//
-//                    mInterstitialAd.setAdListener(new AdListener() {
-//                        @Override
-//                        public void onAdLoaded() {
-//                            // Code to be executed when an ad finishes loading.
-//                            Intent showAds = new Intent(getApplicationContext(), ShowAds.class);
-//                            showAds.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                            if (killedAds && check) {
-//                                startActivity(showAds);
-//                                mInterstitialAd.show();
-//                                killedAds = false;
-//                            }
-//                        }
-//                        @Override
-//                        public void onAdClosed() {
-//                            check = false;
-//                            killedAds = true;
-//                            try {
-//                                if (Build.VERSION.SDK_INT < 21) {
-//                                    ShowAds.getInstance().finishAffinity();
-//                                } else {
-//                                    ShowAds.getInstance().finishAndRemoveTask();
-//                                }
-//                                android.os.Process.killProcess(android.os.Process.myPid());
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    });
-//                }
-                handler.post(runnableCode);
-//                handler.postDelayed(runnableCode, 1000*3*60);
-            }
-        };
-        handler.postDelayed(runnableCode, 1000 * 10);
-    }
 
     public class MyBroadcast extends BroadcastReceiver {
         @Override
