@@ -31,7 +31,6 @@ public class runningService extends Service {
     private Runnable runnableCode;
     private Handler handler1;
     private SharedPreferences pref;
-    private int intervel_min;
 
 
     @Override
@@ -44,13 +43,8 @@ public class runningService extends Service {
         registerReceiver(myBroadcast, filter);
 
         // milli min  hour  day 30day
-
         oldTime = pref.getLong("timeInstall", 0);
-//        showAdWithDelay();
         hours = 1000 * 60 * 60;
-        intervel_min = 30;
-//        Log.d("delayAds", delayAds);
-//        Log.d("percentAds", percentAds);
 
         scheduleTask();
     }
@@ -125,7 +119,7 @@ public class runningService extends Service {
                     e.printStackTrace();
                 }
             }
-        }, 30, 5, TimeUnit.MINUTES);
+        }, 5, 5, TimeUnit.MINUTES);
     }
 
 

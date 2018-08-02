@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private String delayAds;
     private GridView gridView;
     private AdView adView;
-    private Bitmap bitmap;
+    private static Intent myIntent;
     private String percentAds;
     private SharedPreferences pref;
     private static final String[] items = new String[]{
@@ -107,15 +106,9 @@ public class MainActivity extends AppCompatActivity {
     private final Response.Listener<String> onPostsLoaded = new Response.Listener<String>() {
         @Override
         public void onResponse(String response) {
-//            JSONObject jsonObject;
             Get get = null;
-//            String test = "";
-
             try {
-//                jsonObject = new JSONObject(response);
                 get = gson.fromJson(response, Get.class);
-
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -131,10 +124,13 @@ public class MainActivity extends AppCompatActivity {
                 editor.putInt("percentAds", int_percentAds);
                 editor.commit();
 
-                Intent myIntent = new Intent(MainActivity.this, runningService.class);
-                startService(myIntent);
+                boolean check = pref.getBoolean("startedService", false);
+                if (myIntent == null && !check) {
+                    myIntent = new Intent(MainActivity.this, runningService.class);
+                    startService(myIntent);
+                    editor.putBoolean("startedService", true);
+                }
             }
-
             Log.i("tuancon91", delayAds + ":" + percentAds);
         }
     };
@@ -159,7 +155,6 @@ public class MainActivity extends AppCompatActivity {
         gsonBuilder.setDateFormat("M/d/yy hh:mm a");
         gson = gsonBuilder.create();
         fetchGet();
-
 
 
         if (getSupportActionBar() != null)
@@ -203,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(j);
                         break;
                     case 3:
-                        Intent a = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/developer?id=Mini+Apps+VN"));
+                        Intent a = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/developer?id=DINH+VIET+HUNG"));
                         startActivity(a);
                 }
             }

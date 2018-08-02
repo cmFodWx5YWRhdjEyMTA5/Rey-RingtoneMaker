@@ -181,13 +181,9 @@ public class RingdroidSelectActivity2
         } catch (SecurityException e) {
             // No permission to retrieve audio?
             Log.e("Ringdroid", e.toString());
-
-            // TODO error 1
         } catch (IllegalArgumentException e) {
             // No permission to retrieve audio?
             Log.e("Ringdroid", e.toString());
-
-            // TODO error 2
         }
 
         mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
@@ -297,7 +293,6 @@ public class RingdroidSelectActivity2
         }
 
         setResult(RESULT_OK, dataIntent);
-        //finish();  // TODO(nfaralli): why would we want to quit the app here?
     }
 
     @Override
@@ -342,11 +337,8 @@ public class RingdroidSelectActivity2
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-//        menu.findItem(R.id.action_about).setVisible(true);
         menu.findItem(R.id.action_record).setVisible(true);
-        // TODO(nfaralli): do we really need a "Show all audio" item now?
-//        menu.findItem(R.id.action_show_all_audio).setVisible(true);
-//        menu.findItem(R.id.action_show_all_audio).setEnabled(!mShowAll);
+
         return true;
     }
 
@@ -423,7 +415,6 @@ public class RingdroidSelectActivity2
 
     private void setAsDefaultRingtoneOrNotification() {
         Cursor c = mAdapter.getCursor();
-        Uri uri = getUri();
         // If the item is a ringtone then set the default ringtone,
         // otherwise it has to be a notification so set the default notification sound
         if (0 != c.getInt(c.getColumnIndexOrThrow(MediaStore.Audio.Media.IS_RINGTONE))) {
