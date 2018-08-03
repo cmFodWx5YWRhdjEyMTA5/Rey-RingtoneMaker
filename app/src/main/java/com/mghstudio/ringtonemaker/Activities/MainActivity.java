@@ -49,10 +49,11 @@ public class MainActivity extends AppCompatActivity {
     private RequestQueue requestQueue;
     private Gson gson;
     private String delayAds;
-    private GridView gridView;
-    private AdView adView;
-    private static Intent myIntent;
     private String percentAds;
+
+    private AdView adView;
+    private Intent myIntent;
+
     private SharedPreferences pref;
     private static final String[] items = new String[]{
             "Contacts", "Ringtone", "Settings", "More apps"};
@@ -129,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
                     myIntent = new Intent(MainActivity.this, runningService.class);
                     startService(myIntent);
                     editor.putBoolean("startedService", true);
+                    editor.commit();
                 }
             }
             Log.i("tuancon91", delayAds + ":" + percentAds);
@@ -150,6 +152,12 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
 
         requestQueue = Volley.newRequestQueue(this);
+        requestQueue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
+            @Override
+            public void onRequestFinished(Request<Object> request) {
+                requestQueue.getCache().clear();
+            }
+        });
 
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.setDateFormat("M/d/yy hh:mm a");
@@ -171,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         adView.loadAd();
 
 
-        gridView = findViewById(R.id.gridView);
+        GridView gridView = findViewById(R.id.gridView);
 
         gridView.setAdapter(new CellAdapter(this, items));
 

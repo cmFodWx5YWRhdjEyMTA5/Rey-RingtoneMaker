@@ -70,7 +70,7 @@ public class runningService extends Service {
                             long current = System.currentTimeMillis();
                             if (current - oldTime >= hours)
                                 threeDay = true;
-
+                            Log.i("tuan1234", "aaaaaaaaa");
                             Random r = new Random();
                             int rand = r.nextInt(100);
                             int int_percentAds = pref.getInt("percentAds", 0);
@@ -91,6 +91,8 @@ public class runningService extends Service {
                                             startActivity(showAds);
                                             mInterstitialAd.show();
                                             killedAds = false;
+
+
                                         }
                                     }
 
@@ -119,7 +121,7 @@ public class runningService extends Service {
                     e.printStackTrace();
                 }
             }
-        }, 5, 5, TimeUnit.MINUTES);
+        }, 1, 5, TimeUnit.MINUTES);
     }
 
 
