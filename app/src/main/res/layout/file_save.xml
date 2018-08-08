@@ -51,6 +51,7 @@
     <EditText
         android:id="@+id/filename"
         android:layout_width="280sp"
+        android:backgroundTint="@color/colorPrimary"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dip"
         android:inputType="text"/>

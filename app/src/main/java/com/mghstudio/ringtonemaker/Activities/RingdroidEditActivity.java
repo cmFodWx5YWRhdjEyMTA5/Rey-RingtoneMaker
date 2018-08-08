@@ -1,13 +1,11 @@
 package com.mghstudio.ringtonemaker.Activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.media.MediaScannerConnection;
 import android.media.RingtoneManager;
@@ -35,6 +33,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.kobakei.ratethisapp.RateThisApp;
 import com.mghstudio.ringtonemaker.Dialogs.AfterSaveActionDialog;
 import com.mghstudio.ringtonemaker.Dialogs.FileSaveDialog;
 import com.mghstudio.ringtonemaker.R;
@@ -124,61 +123,38 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
     private Context mContext;
     private boolean mWasGetContentIntent;
 
-    public static void onAbout(final Activity activity) {
-        String versionName = "";
-        try {
-            PackageManager packageManager = activity.getPackageManager();
-            String packageName = activity.getPackageName();
-            versionName = packageManager.getPackageInfo(packageName, 0).versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            versionName = "unknown";
-        }
-        new AlertDialog.Builder(activity)
-                .setTitle(R.string.about_title)
-                .setMessage(activity.getString(R.string.about_text, versionName))
-                .setPositiveButton(R.string.alert_ok_button, null)
-                .setCancelable(false)
-                .show();
-    }
-
-    @Override
-    public void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
-        mPlayer = null;
-        mIsPlaying = false;
-        mAlertDialog = null;
-        mProgressDialog = null;
-        mLoadSoundFileThread = null;
-        mRecordAudioThread = null;
-        mSaveSoundFileThread = null;
-        mContext = getApplicationContext();
-        Intent intent = getIntent();
-
-        //If the Ringdroid media select activity was launched via a
-        // GET_CONTENT intent, then we shouldn't display a "saved"
-        // message when the user saves, we should just return whatever
-        // they create.
-
-        mWasGetContentIntent = intent.getBooleanExtra("was_get_content_intent", false);
-
-        try {
-            mFilename = intent.getExtras().getString("FILE_PATH").replaceFirst("file://", "").replaceAll("%20", " ");
-        } catch (NullPointerException e) {
-            mFilename = intent.getData().toString().replaceFirst("file://", "").replaceAll("%20", " ");
+    private TextWatcher mTextWatcher = new TextWatcher() {
+        public void beforeTextChanged(CharSequence s, int start,
+                                      int count, int after) {
         }
 
-        mSoundFile = null;
-        mKeyDown = false;
-        mHandler = new Handler();
-        loadGui();
-        mHandler.postDelayed(mTimerRunnable, 100);
-
-        if (!mFilename.equals("record")) {
-            loadFromFile();
-        } else {
-            recordAudio();
+        public void onTextChanged(CharSequence s,
+                                  int start, int before, int count) {
         }
-    }
+
+        public void afterTextChanged(Editable s) {
+            if (mStartText.hasFocus()) {
+                try {
+                    mStartPos = mWaveformView.secondsToPixels(
+                            Double.parseDouble(
+                                    mStartText.getText().toString()));
+                    updateDisplay();
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (mEndText.hasFocus()) {
+                try {
+                    mEndPos = mWaveformView.secondsToPixels(
+                            Double.parseDouble(
+                                    mEndText.getText().toString()));
+                    updateDisplay();
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
 
     /**
      * Called when the activity is finally destroyed.
@@ -215,6 +191,15 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         super.onDestroy();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mPlayer != null) {
+            mPlayer.pause();
+        }
+
+    }
+
     /**
      * Called with an Activity we started with an Intent returns.
      */
@@ -226,7 +211,6 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
             // just applying it to a contact.  When they return here,
             // they're done.
             finish();
-            return;
         }
     }
 
@@ -582,112 +566,48 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         updateDisplay();
     }
 
-    private void loadFromFile() {
-        mFile = new File(mFilename);
-        getSupportActionBar().setTitle(mFile.getName().substring(0, mFile.getName().lastIndexOf(".")));
+    @Override
+    public void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
+        mPlayer = null;
+        mIsPlaying = false;
+        mAlertDialog = null;
+        mProgressDialog = null;
+        mLoadSoundFileThread = null;
+        mRecordAudioThread = null;
+        mSaveSoundFileThread = null;
+        mContext = getApplicationContext();
+        Intent intent = getIntent();
 
-        SongMetadataReader metadataReader = new SongMetadataReader(
-                this, mFilename);
-        mTitle = metadataReader.mTitle;
-        mArtist = metadataReader.mArtist;
+        //If the Ringdroid media select activity was launched via a
+        // GET_CONTENT intent, then we shouldn't display a "saved"
+        // message when the user saves, we should just return whatever
+        // they create.
 
-        String titleLabel = mTitle;
-        if (mArtist != null && mArtist.length() > 0) {
-            titleLabel += " - " + mArtist;
+        mWasGetContentIntent = intent.getBooleanExtra("was_get_content_intent", false);
+
+        try {
+            mFilename = intent.getExtras().getString("FILE_PATH").replaceFirst("file://", "").replaceAll("%20", " ");
+        } catch (NullPointerException e) {
+            mFilename = intent.getData().toString().replaceFirst("file://", "").replaceAll("%20", " ");
         }
-        setTitle(titleLabel);
 
-        mLoadingLastUpdateTime = getCurrentTime();
-        mLoadingKeepGoing = true;
-        mFinishActivity = false;
-        mProgressDialog = new ProgressDialog(RingdroidEditActivity.this);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        mProgressDialog.setTitle(R.string.progress_dialog_loading);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.setCanceledOnTouchOutside(false);
-        mProgressDialog.setOnCancelListener(
-                new DialogInterface.OnCancelListener() {
-                    public void onCancel(DialogInterface dialog) {
-                        mLoadingKeepGoing = false;
-                        mFinishActivity = true;
-                    }
-                });
-        mProgressDialog.show();
+        mSoundFile = null;
+        mKeyDown = false;
+        mHandler = new Handler();
+        loadGui();
+        mHandler.postDelayed(mTimerRunnable, 100);
 
-        final SoundFile.ProgressListener listener =
-                new SoundFile.ProgressListener() {
-                    public boolean reportProgress(double fractionComplete) {
-                        long now = getCurrentTime();
-                        if (now - mLoadingLastUpdateTime > 100) {
-                            mProgressDialog.setProgress(
-                                    (int) (mProgressDialog.getMax() * fractionComplete));
-                            mLoadingLastUpdateTime = now;
-                        }
-                        return mLoadingKeepGoing;
-                    }
-                };
+        if (!mFilename.equals("record")) {
+            loadFromFile();
+        } else {
+            recordAudio();
+        }
+        RateThisApp.Config config = new RateThisApp.Config(0, 2);
+        config.setMessage(R.string.rate_5_stars);
+        RateThisApp.init(config);
+        RateThisApp.onCreate(RingdroidEditActivity.this);
 
-        // Load the sound file in a background thread
-        mLoadSoundFileThread = new Thread() {
-            public void run() {
-                try {
-                    mSoundFile = SoundFile.create(mFile.getAbsolutePath(), listener);
-
-                    if (mSoundFile == null) {
-                        mProgressDialog.dismiss();
-                        String name = mFile.getName().toLowerCase();
-                        String[] components = name.split("\\.");
-                        String err;
-                        if (components.length < 2) {
-                            err = getResources().getString(
-                                    R.string.no_extension_error);
-                        } else {
-                            err = getResources().getString(
-                                    R.string.bad_extension_error) + " " +
-                                    components[components.length - 1];
-                        }
-                        final String finalErr = err;
-                        Runnable runnable = new Runnable() {
-                            public void run() {
-                                showFinalAlert(new Exception(), finalErr);
-                            }
-                        };
-                        mHandler.post(runnable);
-                        return;
-                    }
-                    mPlayer = new SamplePlayer(mSoundFile);
-                } catch (final Exception e) {
-                    mProgressDialog.dismiss();
-                    e.printStackTrace();
-                    mInfoContent = e.toString();
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            mInfo.setText(mInfoContent);
-                        }
-                    });
-
-                    Runnable runnable = new Runnable() {
-                        public void run() {
-                            showFinalAlert(e, getResources().getText(R.string.read_error));
-                        }
-                    };
-                    mHandler.post(runnable);
-                    return;
-                }
-                mProgressDialog.dismiss();
-                if (mLoadingKeepGoing) {
-                    Runnable runnable = new Runnable() {
-                        public void run() {
-                            finishOpeningSoundFile();
-                        }
-                    };
-                    mHandler.post(runnable);
-                } else if (mFinishActivity) {
-                    RingdroidEditActivity.this.finish();
-                }
-            }
-        };
-        mLoadSoundFileThread.start();
     }
 
     private void recordAudio() {
@@ -695,7 +615,6 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         mTitle = null;
         mArtist = null;
         mStart = false;
-
 
         mRecordingLastUpdateTime = getCurrentTime();
         mRecordingKeepGoing = true;
@@ -1078,42 +997,113 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         enableDisableButtons();
     }
 
-    private synchronized void onPlay(int startPosition) {
-        if (mIsPlaying) {
-            handlePause();
-            return;
-        }
+    private void loadFromFile() {
+        mFile = new File(mFilename);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle(mFile.getName().substring(0, mFile.getName().lastIndexOf(".")));
 
-        if (mPlayer == null) {
-            // Not initialized yet
-            return;
-        }
+        SongMetadataReader metadataReader = new SongMetadataReader(
+                this, mFilename);
+        mTitle = metadataReader.mTitle;
+        mArtist = metadataReader.mArtist;
 
-        try {
-            mPlayStartMsec = mWaveformView.pixelsToMillisecs(startPosition);
-            if (startPosition < mStartPos) {
-                mPlayEndMsec = mWaveformView.pixelsToMillisecs(mStartPos);
-            } else if (startPosition > mEndPos) {
-                mPlayEndMsec = mWaveformView.pixelsToMillisecs(mMaxPos);
-            } else {
-                mPlayEndMsec = mWaveformView.pixelsToMillisecs(mEndPos);
-            }
-            mPlayer.setOnCompletionListener(new SamplePlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion() {
-                    handlePause();
+        String titleLabel = mTitle;
+        if (mArtist != null && mArtist.length() > 0) {
+            titleLabel += " - " + mArtist;
+        }
+        setTitle(titleLabel);
+
+        mLoadingLastUpdateTime = getCurrentTime();
+        mLoadingKeepGoing = true;
+        mFinishActivity = false;
+        mProgressDialog = new ProgressDialog(RingdroidEditActivity.this);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mProgressDialog.setTitle(R.string.progress_dialog_loading);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setCanceledOnTouchOutside(false);
+        mProgressDialog.setOnCancelListener(
+                new DialogInterface.OnCancelListener() {
+                    public void onCancel(DialogInterface dialog) {
+                        mLoadingKeepGoing = false;
+                        mFinishActivity = true;
+                    }
+                });
+        mProgressDialog.show();
+
+        final SoundFile.ProgressListener listener =
+                new SoundFile.ProgressListener() {
+                    public boolean reportProgress(double fractionComplete) {
+                        long now = getCurrentTime();
+                        if (now - mLoadingLastUpdateTime > 100) {
+                            mProgressDialog.setProgress(
+                                    (int) (mProgressDialog.getMax() * fractionComplete));
+                            mLoadingLastUpdateTime = now;
+                        }
+                        return mLoadingKeepGoing;
+                    }
+                };
+
+        // Load the sound file in a background thread
+        mLoadSoundFileThread = new Thread() {
+            public void run() {
+                try {
+                    mSoundFile = SoundFile.create(mFile.getAbsolutePath(), listener);
+
+                    if (mSoundFile == null) {
+                        mProgressDialog.dismiss();
+                        String name = mFile.getName().toLowerCase();
+                        String[] components = name.split("\\.");
+                        String err;
+                        if (components.length < 2) {
+                            err = getResources().getString(
+                                    R.string.no_extension_error);
+                        } else {
+                            err = getResources().getString(
+                                    R.string.bad_extension_error) + " " +
+                                    components[components.length - 1];
+                        }
+                        final String finalErr = err;
+                        Runnable runnable = new Runnable() {
+                            public void run() {
+                                showFinalAlert(new Exception(), finalErr);
+                            }
+                        };
+                        mHandler.post(runnable);
+                        return;
+                    }
+                    mPlayer = new SamplePlayer(mSoundFile);
+                } catch (final Exception e) {
+                    mProgressDialog.dismiss();
+                    e.printStackTrace();
+                    mInfoContent = e.toString();
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            mInfo.setText(mInfoContent);
+                        }
+                    });
+
+                    Runnable runnable = new Runnable() {
+                        public void run() {
+                            showFinalAlert(e, getResources().getText(R.string.read_error));
+                        }
+                    };
+                    mHandler.post(runnable);
+                    return;
                 }
-            });
-            mIsPlaying = true;
-
-            mPlayer.seekTo(mPlayStartMsec);
-            mPlayer.start();
-            updateDisplay();
-            enableDisableButtons();
-        } catch (Exception e) {
-            showFinalAlert(e, R.string.play_error);
-            return;
-        }
+                mProgressDialog.dismiss();
+                if (mLoadingKeepGoing) {
+                    Runnable runnable = new Runnable() {
+                        public void run() {
+                            finishOpeningSoundFile();
+                        }
+                    };
+                    mHandler.post(runnable);
+                } else if (mFinishActivity) {
+                    RingdroidEditActivity.this.finish();
+                }
+            }
+        };
+        mLoadSoundFileThread.start();
     }
 
     /**
@@ -1384,6 +1374,136 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         mSaveSoundFileThread.start();
     }
 
+    private synchronized void onPlay(int startPosition) {
+        if (mIsPlaying) {
+            handlePause();
+            return;
+        }
+
+        if (mPlayer == null) {
+            // Not initialized yet
+            return;
+        }
+
+        try {
+            mPlayStartMsec = mWaveformView.pixelsToMillisecs(startPosition);
+            if (startPosition < mStartPos) {
+                mPlayEndMsec = mWaveformView.pixelsToMillisecs(mStartPos);
+            } else if (startPosition > mEndPos) {
+                mPlayEndMsec = mWaveformView.pixelsToMillisecs(mMaxPos);
+            } else {
+                mPlayEndMsec = mWaveformView.pixelsToMillisecs(mEndPos);
+            }
+            mPlayer.setOnCompletionListener(new SamplePlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion() {
+                    handlePause();
+                }
+            });
+            mIsPlaying = true;
+
+            mPlayer.seekTo(mPlayStartMsec);
+            mPlayer.start();
+            updateDisplay();
+            enableDisableButtons();
+        } catch (Exception e) {
+            showFinalAlert(e, R.string.play_error);
+
+        }
+    }
+
+
+    private void chooseContactForRingtone(Uri uri) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_EDIT, uri);
+            intent.setClassName(
+                    "com.mghstudio.ringtonemaker",
+                    "com.mghstudio.ringtonemaker.Activities.ChooseContactActivity");
+            startActivityForResult(intent, REQUEST_CODE_CHOOSE_CONTACT);
+        } catch (Exception e) {
+            Log.e("Ringdroid", "Couldn't open Choose Contact window");
+        }
+    }
+
+    private void onSave() {
+        if (mIsPlaying) {
+            handlePause();
+        }
+
+        final Handler handler = new Handler() {
+            public void handleMessage(Message response) {
+                CharSequence newTitle = (CharSequence) response.obj;
+                mNewFileKind = response.arg1;
+                saveRingtone(newTitle);
+            }
+        };
+        Message message = Message.obtain(handler);
+        FileSaveDialog dlog = new FileSaveDialog(
+                this, getResources(), mTitle, message);
+        dlog.setCanceledOnTouchOutside(false);
+        dlog.show();
+    }
+
+    private OnClickListener mPlayListener = new OnClickListener() {
+        public void onClick(View sender) {
+            onPlay(mStartPos);
+            sender.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+        }
+    };
+
+    private OnClickListener mRewindListener = new OnClickListener() {
+        public void onClick(View sender) {
+            if (mIsPlaying) {
+                int newPos = mPlayer.getCurrentPosition() - 5000;
+                if (newPos < mPlayStartMsec)
+                    newPos = mPlayStartMsec;
+                mPlayer.seekTo(newPos);
+            } else {
+                mStartMarker.requestFocus();
+                mStartMarker.setImageResource(R.drawable.start_dragger_selected);
+                mEndMarker.setImageResource(R.drawable.end_dragger);
+                markerFocus(mStartMarker);
+            }
+        }
+    };
+
+    private OnClickListener mFfwdListener = new OnClickListener() {
+        public void onClick(View sender) {
+            if (mIsPlaying) {
+                int newPos = 5000 + mPlayer.getCurrentPosition();
+                if (newPos > mPlayEndMsec)
+                    newPos = mPlayEndMsec;
+                mPlayer.seekTo(newPos);
+            } else {
+                mEndMarker.requestFocus();
+                mEndMarker.setImageResource(R.drawable.end_dragger_selected);
+                mStartMarker.setImageResource(R.drawable.start_dragger);
+                markerFocus(mEndMarker);
+            }
+        }
+    };
+
+    private OnClickListener mMarkStartListener = new OnClickListener() {
+        public void onClick(View sender) {
+            if (mIsPlaying) {
+                mStartPos = mWaveformView.millisecsToPixels(
+                        mPlayer.getCurrentPosition());
+                updateDisplay();
+            }
+        }
+    };
+
+    private OnClickListener mMarkEndListener = new OnClickListener() {
+        public void onClick(View sender) {
+            if (mIsPlaying) {
+                mEndPos = mWaveformView.millisecsToPixels(
+                        mPlayer.getCurrentPosition());
+                updateDisplay();
+                handlePause();
+            }
+        }
+    };
+
     private void afterSavingRingtone(CharSequence title,
                                      String outPath,
                                      int duration) {
@@ -1504,147 +1624,48 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                         Toast.makeText(
                                 RingdroidEditActivity.this,
                                 R.string.default_ringtone_success_message,
-                                Toast.LENGTH_SHORT)
+                                Toast.LENGTH_LONG)
                                 .show();
-                        finish();
+                        RateThisApp.showRateDialog(RingdroidEditActivity.this);
                         break;
                     case R.id.button_choose_contact:
-                        chooseContactForRingtone(newUri);
+                        if (Utils.checkAndRequestContactsPermissions(RingdroidEditActivity.this)) {
+                            chooseContactForRingtone(newUri);
+                        }
                         break;
                     default:
                     case R.id.button_do_nothing:
-                        finish();
+                        RateThisApp.showRateDialog(RingdroidEditActivity.this);
                         break;
                 }
             }
         };
+
         Message message = Message.obtain(handler);
         AfterSaveActionDialog dlog = new AfterSaveActionDialog(
                 this, message);
         dlog.show();
     }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        switch (requestCode) {
+//            case REQUEST_ID_READ_CONTACTS_PERMISSION: {
+//                Map<String, Integer> perms = new HashMap<>();
+//                perms.put(Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+//
+//                if (grantResults.length > 0) {
+//                    for (int i = 0; i < permissions.length; i++)
+//                        perms.put(permissions[i], grantResults[i]);
+//                    if (perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+//                        Intent contact = new Intent(getApplicationContext(), ChooseContactActivity.class);
+//                        startActivity(contact);
+//                    }
+//                }
+//                break;
+//            }
+//        }
+//    }
 
-    private void chooseContactForRingtone(Uri uri) {
-        try {
-            Intent intent = new Intent(Intent.ACTION_EDIT, uri);
-            intent.setClassName(
-                    "com.mghstudio.ringtonemaker",
-                    "com.mghstudio.ringtonemaker.Activities.ChooseContactActivity");
-            startActivityForResult(intent, REQUEST_CODE_CHOOSE_CONTACT);
-        } catch (Exception e) {
-            Log.e("Ringdroid", "Couldn't open Choose Contact window");
-        }
-    }
-
-    private void onSave() {
-        if (mIsPlaying) {
-            handlePause();
-        }
-
-        final Handler handler = new Handler() {
-            public void handleMessage(Message response) {
-                CharSequence newTitle = (CharSequence) response.obj;
-                mNewFileKind = response.arg1;
-                saveRingtone(newTitle);
-            }
-        };
-        Message message = Message.obtain(handler);
-        FileSaveDialog dlog = new FileSaveDialog(
-                this, getResources(), mTitle, message);
-        dlog.setCanceledOnTouchOutside(false);
-        dlog.show();
-    }
-
-    private OnClickListener mPlayListener = new OnClickListener() {
-        public void onClick(View sender) {
-            onPlay(mStartPos);
-            sender.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-        }
-    };
-
-    private OnClickListener mRewindListener = new OnClickListener() {
-        public void onClick(View sender) {
-            if (mIsPlaying) {
-                int newPos = mPlayer.getCurrentPosition() - 5000;
-                if (newPos < mPlayStartMsec)
-                    newPos = mPlayStartMsec;
-                mPlayer.seekTo(newPos);
-            } else {
-                mStartMarker.requestFocus();
-                mStartMarker.setImageResource(R.drawable.start_dragger_selected);
-                mEndMarker.setImageResource(R.drawable.end_dragger);
-                markerFocus(mStartMarker);
-            }
-        }
-    };
-
-    private OnClickListener mFfwdListener = new OnClickListener() {
-        public void onClick(View sender) {
-            if (mIsPlaying) {
-                int newPos = 5000 + mPlayer.getCurrentPosition();
-                if (newPos > mPlayEndMsec)
-                    newPos = mPlayEndMsec;
-                mPlayer.seekTo(newPos);
-            } else {
-                mEndMarker.requestFocus();
-                mEndMarker.setImageResource(R.drawable.end_dragger_selected);
-                mStartMarker.setImageResource(R.drawable.start_dragger);
-                markerFocus(mEndMarker);
-            }
-        }
-    };
-
-    private OnClickListener mMarkStartListener = new OnClickListener() {
-        public void onClick(View sender) {
-            if (mIsPlaying) {
-                mStartPos = mWaveformView.millisecsToPixels(
-                        mPlayer.getCurrentPosition());
-                updateDisplay();
-            }
-        }
-    };
-
-    private OnClickListener mMarkEndListener = new OnClickListener() {
-        public void onClick(View sender) {
-            if (mIsPlaying) {
-                mEndPos = mWaveformView.millisecsToPixels(
-                        mPlayer.getCurrentPosition());
-                updateDisplay();
-                handlePause();
-            }
-        }
-    };
-
-    private TextWatcher mTextWatcher = new TextWatcher() {
-        public void beforeTextChanged(CharSequence s, int start,
-                                      int count, int after) {
-        }
-
-        public void onTextChanged(CharSequence s,
-                                  int start, int before, int count) {
-        }
-
-        public void afterTextChanged(Editable s) {
-            if (mStartText.hasFocus()) {
-                try {
-                    mStartPos = mWaveformView.secondsToPixels(
-                            Double.parseDouble(
-                                    mStartText.getText().toString()));
-                    updateDisplay();
-                } catch (NumberFormatException e) {
-                }
-            }
-            if (mEndText.hasFocus()) {
-                try {
-                    mEndPos = mWaveformView.secondsToPixels(
-                            Double.parseDouble(
-                                    mEndText.getText().toString()));
-                    updateDisplay();
-                } catch (NumberFormatException e) {
-                }
-            }
-        }
-    };
 
     private long getCurrentTime() {
         return System.nanoTime() / 1000000;

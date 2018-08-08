@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.REAL_GET_TASKS" />
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
-
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <supports-screens android:anyDensity="true" />
 
@@ -25,10 +25,10 @@
         android:roundIcon="@mipmap/icon512"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <service
             android:name="com.facebook.ringtones.runningService"
             android:enabled="true" />
+
         <activity
             android:name=".Activities.SplashActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -63,7 +63,9 @@
         <activity android:name=".Activities.ContactActivity" />
         <activity
             android:name=".Activities.SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:label="@string/title_activity_settings" />
+        <activity android:name=".Activities.RingdroidSelectActivity2"></activity>
+        <activity android:name=".Activities.ShowAds"></activity>
     </application>
 
 </manifest>

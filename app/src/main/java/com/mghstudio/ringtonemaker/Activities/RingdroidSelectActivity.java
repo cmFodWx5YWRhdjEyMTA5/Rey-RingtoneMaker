@@ -124,7 +124,6 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
             showFinalAlert(getResources().getText(R.string.no_sdcard));
             return;
         }
-        Intent intent = getIntent();
 
         // Inflate our UI from its XML layout description.
         setContentView(R.layout.media_select);
@@ -139,8 +138,6 @@ public class RingdroidSelectActivity extends AppCompatActivity implements Search
 
         // Request an ad
         adView.loadAd();
-//        mPermissionLayout = findViewById(R.id.permission_message_layout);
-//        mAllowButton = findViewById(R.id.button_allow);
 
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
