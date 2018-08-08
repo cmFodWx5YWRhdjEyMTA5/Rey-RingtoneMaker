@@ -13,6 +13,7 @@ import android.database.MergeCursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -38,6 +39,7 @@ import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.mghstudio.ringtonemaker.Ringdroid.soundfile.SoundFile;
 
+import java.io.Console;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -317,21 +319,21 @@ public class RingdroidSelectActivity2
         if (mFilter != null) {
             mFilter.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 public boolean onQueryTextChange(String newText) {
-                    String newFilter = !TextUtils.isEmpty(newText) ? newText : null;
-                    if (mCurFilter == null && newFilter == null) {
-                        return true;
-                    }
-                    if (mCurFilter != null && mCurFilter.equals(newFilter)) {
-                        return true;
-                    }
-                    mCurFilter = newFilter;
+//                    String newFilter = !TextUtils.isEmpty(newText) ? newText : null;
+//                    if (mCurFilter == null && newFilter == null) {
+//                        return true;
+//                    }
+//                    if (mCurFilter != null && mCurFilter.equals(newFilter)) {
+//                        return true;
+//                    }
+//                    mCurFilter = newFilter;
                     refreshListView();
                     return true;
                 }
 
                 public boolean onQueryTextSubmit(String query) {
                     refreshListView();
-                    return true;
+                    return false;
                 }
             });
         }
@@ -673,6 +675,8 @@ public class RingdroidSelectActivity2
 
         String[] selectionArgs =
                 selectionArgsList.toArray(new String[selectionArgsList.size()]);
+
+        Log.d("caomui","loaed");
         return new CursorLoader(
                 this,
                 baseUri,
@@ -701,6 +705,8 @@ public class RingdroidSelectActivity2
             Cursor mergeCursor = new MergeCursor(new Cursor[]{mInternalCursor, mExternalCursor});
             mAdapter.swapCursor(mergeCursor);
         }
+
+        Log.d("caomui","finish");
     }
 
     /* Implementation of LoaderCallbacks.onLoaderReset */
@@ -709,6 +715,8 @@ public class RingdroidSelectActivity2
         // This is called when the last Cursor provided to onLoadFinished()
         // above is about to be closed.  We need to make sure we are no
         // longer using it.
+        Log.d("caomui","reset");
         mAdapter.swapCursor(null);
+
     }
 }
