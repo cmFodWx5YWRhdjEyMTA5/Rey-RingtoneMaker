@@ -98,7 +98,7 @@
                 android:layout_marginTop="6dip"
                 android:background="?selectableItemBackgroundBorderless"
                 android:contentDescription="@string/rewind"
-                android:src="@drawable/skip_backward"/>
+                app:srcCompat="@drawable/skip_backward" />
 
             <ImageButton
                 android:id="@+id/play"
@@ -109,7 +109,7 @@
                 android:layout_marginTop="6dip"
                 android:background="?selectableItemBackgroundBorderless"
                 android:contentDescription="@string/play"
-                android:src="@drawable/play"/>
+                app:srcCompat="@drawable/play" />
 
             <ImageButton
                 android:id="@+id/ffwd"
@@ -121,7 +121,7 @@
                 android:layout_marginTop="6dip"
                 android:background="?selectableItemBackgroundBorderless"
                 android:contentDescription="@string/ffwd"
-                android:src="@drawable/skip_forward"/>
+                app:srcCompat="@drawable/skip_forward" />
 
         </LinearLayout>
 

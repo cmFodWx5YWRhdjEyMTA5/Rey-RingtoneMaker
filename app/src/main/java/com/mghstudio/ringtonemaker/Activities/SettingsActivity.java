@@ -1,7 +1,6 @@
 package com.mghstudio.ringtonemaker.Activities;
 
 import android.annotation.TargetApi;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -11,6 +10,7 @@ import android.preference.PreferenceFragment;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
+import com.kobakei.ratethisapp.RateThisApp;
 import com.mghstudio.ringtonemaker.R;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
@@ -40,14 +40,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
 
+            RateThisApp.Config config = new RateThisApp.Config(0, 2);
+            config.setMessage(R.string.rate_5_stars);
+            RateThisApp.init(config);
+            RateThisApp.onCreate(getActivity());
+
             Preference buttonRate = findPreference("RATE");
             buttonRate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    Uri uri = Uri.parse("market://details?id=" + getActivity().getPackageName());
+                   /* Uri uri = Uri.parse("market://details?id=" + getActivity().getPackageName());
                     Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
-                    // To count with Play market backstack, After pressing back button,
-                    // to taken back to our application, we need to add following flags to intent.
+
                     goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
                             Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
                             Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
@@ -56,7 +60,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     } catch (ActivityNotFoundException e) {
                         startActivity(new Intent(Intent.ACTION_VIEW,
                                 Uri.parse("http://play.google.com/store/apps/details?id=" + getActivity().getPackageName())));
-                    }
+                    }*/
+
+                    RateThisApp.showRateDialog(getActivity());
                     return true;
                 }
             });

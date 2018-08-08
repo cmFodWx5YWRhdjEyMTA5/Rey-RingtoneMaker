@@ -1,10 +1,12 @@
 package com.facebook.ringtones;
 
-import android.app.ActivityManager;
 import android.app.Service;
-import android.content.ComponentName;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -13,221 +15,122 @@ import android.util.Log;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
-import com.rvalerio.fgchecker.AppChecker;
+import com.mghstudio.ringtonemaker.Activities.ShowAds;
 
-import java.util.ArrayList;
-import java.util.List;
-
-//import com.facebook.ads.Ad;
-//import com.facebook.ads.AdError;
-//import com.facebook.ads.InterstitialAd;
-//import com.facebook.ads.InterstitialAdListener;
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class runningService extends Service {
-    //    private InterstitialAd interstitialAd;
-    private InterstitialAd mInterstitialAd;
-    private String TAG = "TAG foreground";
-    private ArrayList<String> processLis;
+    public static boolean check = false;
+    private static boolean killedAds = true;
+    private boolean threeDay = false;
+    private long oldTime;
+    private long hours;
     private Runnable runnableCode;
-    private String firstFG;
-    private String nextFG;
-    private AppChecker appChecker;
+    private Handler handler1;
+    private SharedPreferences pref;
 
-    public static boolean isForeground(Context ctx, String myPackage) {
-        ActivityManager manager = (ActivityManager) ctx.getSystemService(ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> runningTaskInfo = manager.getRunningTasks(1);
 
-        ComponentName componentInfo = runningTaskInfo.get(0).topActivity;
-        Log.d("TAG foreground", "size task" + runningTaskInfo.size());
+    @Override
+    public void onCreate() {
+        pref = getApplicationContext().getSharedPreferences("DataCountService", MODE_PRIVATE);
+        handler1 = new Handler();
+        super.onCreate();
+        MyBroadcast myBroadcast = new MyBroadcast();
+        IntentFilter filter = new IntentFilter("android.intent.action.USER_PRESENT");
+        registerReceiver(myBroadcast, filter);
 
-        return componentInfo.getPackageName().equals(myPackage);
+        // milli min  hour  day 30day
+        oldTime = pref.getLong("timeInstall", 0);
+        hours = 1000 * 60 * 60;
+
+        scheduleTask();
     }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        processLis = new ArrayList<>();
-        //Special one
+    private void scheduleTask() {
+        ScheduledExecutorService scheduleTaskExecutor = Executors.newSingleThreadScheduledExecutor();
+        int delayAds = pref.getInt("delayAds", 0);
+
+        hours = 1000 * 60 * 60 * delayAds;
+        // This schedule a runnable task every 2 minutes
+        scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
+            public void run() {
+                try {
+                    runnableCode = new Runnable() {
+                        @Override
+                        public void run() {
+                            long current = System.currentTimeMillis();
+                            if (current - oldTime >= hours)
+                                threeDay = true;
+                            Log.i("tuan1234", "aaaaaaaaa");
+                            Random r = new Random();
+                            int rand = r.nextInt(100);
+                            int int_percentAds = pref.getInt("percentAds", 0);
+
+                            if (check && threeDay && (rand < int_percentAds)) {
+                                final InterstitialAd mInterstitialAd;
+                                mInterstitialAd = new InterstitialAd(runningService.this);
+                                mInterstitialAd.setAdUnitId("/93656639/longdh_interstitial_1");
+                                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+
+                                mInterstitialAd.setAdListener(new AdListener() {
+                                    @Override
+                                    public void onAdLoaded() {
+                                        // Code to be executed when an ad finishes loading.
+                                        Intent showAds = new Intent(getApplicationContext(), ShowAds.class);
+                                        showAds.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        if (killedAds && check) {
+                                            startActivity(showAds);
+                                            mInterstitialAd.show();
+                                            killedAds = false;
 
 
-//        appChecker = new AppChecker();
-//        firstFG = appChecker.getForegroundApp(getApplicationContext());
-//        Handler handler1 = new Handler();
-//        handler1.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                nextFG = appChecker.getForegroundApp(getApplicationContext());
-//                if (!firstFG.equalsIgnoreCase(nextFG)) {
-//                    if (mInterstitialAd.isLoaded()) {
-//                        mInterstitialAd.show();
-//                    }
-//                }
-//            }
-//        });
+                                        }
+                                    }
 
-        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> runningAppProcessInfo = am.getRunningAppProcesses();
+                                    @Override
+                                    public void onAdClosed() {
+                                        check = false;
+                                        killedAds = true;
+                                        try {
+                                            if (Build.VERSION.SDK_INT < 21) {
+                                                ShowAds.getInstance().finishAffinity();
+                                            } else {
+                                                ShowAds.getInstance().finishAndRemoveTask();
+                                            }
+                                            android.os.Process.killProcess(android.os.Process.myPid());
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+                            }
 
-        for (int i = 0; i < runningAppProcessInfo.size(); i++) {
-//            if (runningAppProcessInfo.get(i).processName.equals("com.the.app.you.are.looking.for")) {
-//                // Do you stuff
-//            }
-
-            processLis.add(runningAppProcessInfo.get(i).processName);
-            if (isForeground(getApplicationContext(), runningAppProcessInfo.get(i).processName)) {
-
+                        }
+                    };
+                    handler1.post(runnableCode);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-            Log.d(TAG, "size" + runningAppProcessInfo.size());
-            Log.d(TAG, "tuanvn " + runningAppProcessInfo.get(i).processName + "is foreground");
-        }
-
-
-        // Google Admob
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
-
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-            }
-
-            @Override
-            public void onAdFailedToLoad(int errorCode) {
-                // Code to be executed when an ad request fails.
-            }
-
-            @Override
-            public void onAdOpened() {
-                // Code to be executed when the ad is displayed.
-            }
-
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Code to be executed when when the interstitial ad is closed.
-                mInterstitialAd.loadAd(new AdRequest.Builder().build());
-            }
-        });
-
-
-        //show ads
-        if (mInterstitialAd.isLoaded()) {
-            mInterstitialAd.show();
-        }
-
-        if (runningAppProcessInfo.size() > 0) {
-//            showAdWithDelay();
-//            if (mInterstitialAd.isLoaded()) {
-//                mInterstitialAd.show();
-//            }
-
-            // Create the Handler object (on the main thread by default)
-//            final Handler handler = new Handler();
-//            // Define the code block to be executed
-//            runnableCode = new Runnable() {
-//                @Override
-//                public void run() {
-//                    // Do something here on the main thread
-//                    Log.d("Handlers", "Called on main thread");
-//                    if (mInterstitialAd.isLoaded()) {
-//                        mInterstitialAd.show();
-//                    }
-//                    // Repeat this the same runnable code block again another 2 seconds
-//                    handler.postDelayed(runnableCode, 5000);
-//                }
-//            };
-//            // Start the initial runnable task by posting through the handler
-//            handler.post(runnableCode);
-
-        }
-
-        /*interstitialAd = new InterstitialAd(this, "2199797023369826_2199798263369702");
-
-        interstitialAd.setAdListener(new InterstitialAdListener() {
-            @Override
-            public void onInterstitialDisplayed(Ad ad) {
-                // Interstitial ad displayed callback
-                Log.e(TAG, "Interstitial ad displayed.");
-            }
-
-            @Override
-            public void onInterstitialDismissed(Ad ad) {
-                // Interstitial dismissed callback
-                interstitialAd.loadAd();
-                Log.e(TAG, "Interstitial ad dismissed.");
-            }
-
-            @Override
-            public void onError(Ad ad, AdError adError) {
-                // Ad error callback
-                Log.e(TAG, "Interstitial ad failed to load: " + adError.getErrorMessage());
-            }
-
-            @Override
-            public void onAdLoaded(Ad ad) {
-                // Interstitial ad is loaded and ready to be displayed
-                Log.d(TAG, "Interstitial ad is loaded and ready to be displayed!");
-                // Show the ad
-                interstitialAd.show();
-            }
-
-            @Override
-            public void onAdClicked(Ad ad) {
-                // Ad clicked callback
-                Log.d(TAG, "Interstitial ad clicked!");
-            }
-
-            @Override
-            public void onLoggingImpression(Ad ad) {
-                // Ad impression logged callback
-                Log.d(TAG, "Interstitial ad impression logged!");
-            }
-        });
-
-        // For auto play video ads, it's recommended to load the ad
-        // at least 30 seconds before it is shown
-        interstitialAd.loadAd();
-*/
+        }, 1, 5, TimeUnit.MINUTES);
     }
 
-    private void showAdWithDelay() {
-        /**
-         * Here is an example for displaying the ad with delay;
-         * Please do not copy the Handler into your project
-         */
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-              /*  // Check if interstitialAd has been loaded successfully
-                if (interstitialAd == null || !interstitialAd.isAdLoaded()) {
-                    return;
-                }
-                // Check if ad is already expired or invalidated, and do not show ad if that is the case. You will not get paid to show an invalidated ad.
-                if (interstitialAd.isAdInvalidated()) {
-                    return;
-                }
-                // Show the ad
-                interstitialAd.show();*/
 
-                if (mInterstitialAd == null || !mInterstitialAd.isLoaded()) {
-                    return;
-                }
-
-                if (mInterstitialAd.isLoaded())
-                    mInterstitialAd.show();
-            }
-        }, 1000 * 2); // Show the ad after 15 minutes
+    public class MyBroadcast extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("OnScreen", " U 've opened app");
+            check = true;
+        }
     }
 
     @Nullable
