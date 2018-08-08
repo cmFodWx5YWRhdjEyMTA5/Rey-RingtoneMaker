@@ -27,8 +27,12 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdError;
 import com.facebook.ads.AdSize;
 import com.facebook.ads.AdView;
+import com.facebook.ads.InterstitialAd;
+import com.facebook.ads.InterstitialAdListener;
 import com.mghstudio.ringtonemaker.Adapters.AllContactsAdapter;
 import com.mghstudio.ringtonemaker.Models.ContactsModel;
 import com.mghstudio.ringtonemaker.R;
@@ -50,12 +54,47 @@ public class ContactActivity extends AppCompatActivity {
     private String mCurFilter;
     private MediaPlayer md;
     private boolean isClicked = false;
+    private InterstitialAd mInterstitialAd;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_contact);
+        mInterstitialAd = new InterstitialAd(this, "2199797023369826_2199798263369702");
+        mInterstitialAd.loadAd();
+        mInterstitialAd.setAdListener(new InterstitialAdListener() {
+            @Override
+            public void onInterstitialDisplayed(Ad ad) {
+
+            }
+
+            @Override
+            public void onInterstitialDismissed(Ad ad) {
+                mInterstitialAd.loadAd();
+            }
+
+            @Override
+            public void onError(Ad ad, AdError adError) {
+
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+
+            }
+
+            @Override
+            public void onLoggingImpression(Ad ad) {
+
+            }
+        });
+
         AdView adView;
 
         adView = new AdView(this, "2199797023369826_2269185393097655", AdSize.BANNER_HEIGHT_50);
@@ -297,6 +336,9 @@ public class ContactActivity extends AppCompatActivity {
                 //reload data in recyclerview
                 mContactsAdapter.updateData(getContacts(getApplication()));
                 mContactsAdapter.notifyDataSetChanged();
+
+                if (mInterstitialAd.isAdLoaded())
+                    mInterstitialAd.show();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
