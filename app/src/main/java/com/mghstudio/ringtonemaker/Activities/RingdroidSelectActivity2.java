@@ -33,8 +33,12 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdError;
 import com.facebook.ads.AdSize;
 import com.facebook.ads.AdView;
+import com.facebook.ads.InterstitialAd;
+import com.facebook.ads.InterstitialAdListener;
 import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.mghstudio.ringtonemaker.Ringdroid.soundfile.SoundFile;
@@ -99,6 +103,7 @@ public class RingdroidSelectActivity2
     private Cursor mInternalCursor;
     private Cursor mExternalCursor;
     private String mCurFilter;
+    private InterstitialAd mInterstitialAd;
 
     public RingdroidSelectActivity2() {
     }
@@ -208,6 +213,40 @@ public class RingdroidSelectActivity2
                 }
 
                 return false;
+            }
+        });
+
+        mInterstitialAd = new InterstitialAd(this, "2199797023369826_2199798263369702");
+        mInterstitialAd.loadAd();
+        mInterstitialAd.setAdListener(new InterstitialAdListener() {
+            @Override
+            public void onInterstitialDisplayed(Ad ad) {
+
+            }
+
+            @Override
+            public void onInterstitialDismissed(Ad ad) {
+                mInterstitialAd.loadAd();
+            }
+
+            @Override
+            public void onError(Ad ad, AdError adError) {
+
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+
+            }
+
+            @Override
+            public void onLoggingImpression(Ad ad) {
+
             }
         });
 
@@ -400,6 +439,9 @@ public class RingdroidSelectActivity2
                     return false;
                 else {
                     setAsDefaultRingtoneOrNotification();
+                    if (mInterstitialAd.isAdLoaded())
+                        mInterstitialAd.show();
+
                     return true;
                 }
             case CMD_SET_AS_CONTACT:

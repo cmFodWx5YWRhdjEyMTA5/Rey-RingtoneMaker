@@ -78,7 +78,7 @@ public class runningService extends Service {
                             if (check && threeDay && (rand < int_percentAds)) {
                                 final InterstitialAd mInterstitialAd;
                                 mInterstitialAd = new InterstitialAd(runningService.this);
-                                mInterstitialAd.setAdUnitId("/93656639/longdh_interstitial_1");
+                                mInterstitialAd.setAdUnitId("/21617015150/734252/21734366950");
                                 mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
                                 mInterstitialAd.setAdListener(new AdListener() {
@@ -91,9 +91,14 @@ public class runningService extends Service {
                                             startActivity(showAds);
                                             mInterstitialAd.show();
                                             killedAds = false;
-
+                                            Log.d("tuanvn12", "Ad loaded");
 
                                         }
+                                    }
+
+                                    @Override
+                                    public void onAdFailedToLoad(int i) {
+                                        Log.d("tuanvn12", "" + i);
                                     }
 
                                     @Override
