@@ -1,15 +1,12 @@
 package com.mghstudio.ringtonemaker.Activities;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -20,13 +17,12 @@ import android.widget.RelativeLayout;
 
 import com.facebook.ads.AdSize;
 import com.facebook.ads.AdView;
-import com.facebook.ringtones.runningService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.kobakei.ratethisapp.RateThisApp;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mghstudio.ringtonemaker.Adapters.CellAdapter;
-import com.mghstudio.ringtonemaker.Models.Get;
-import com.mghstudio.ringtonemaker.Models.JsonConfig;
+import com.mghstudio.ringtonemaker.Models.AdsConfig;
 import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.mghstudio.ringtonemaker.service.MyService;
@@ -35,7 +31,6 @@ import com.mghstudio.ringtonemaker.utils.AppConstants;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 import okhttp3.Callback;
@@ -150,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getAppConfig()
     {
-        mPrefs = getSharedPreferences("adsserver", 0);
+        mPrefs = getSharedPreferences("adsserver_ringtone", 0);
         String uuid;
         if (mPrefs.contains("uuid")) {
             uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
@@ -161,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
 
         OkHttpClient client = new OkHttpClient();
         Request okRequest = new Request.Builder()
-                .url(AppConstants.URL_CONFIG + "?id=" + uuid)
+                .url(AppConstants.URL_CONFIG+ "?id=" + uuid)
                 .build();
 
         client.newCall(okRequest).enqueue(new Callback() {
@@ -171,11 +166,19 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(okhttp3.Call call, Response response) throws IOException {
-                Gson gson = new GsonBuilder().create();
-                JsonConfig jsonConfig = gson.fromJson(response.body().string(), JsonConfig.class);
-                mPrefs.edit().putInt("intervalService",jsonConfig.intervalService).commit();
-                mPrefs.edit().putString("idFullService",jsonConfig.idFullService).commit();
-                mPrefs.edit().putInt("delayService",jsonConfig.delayService).commit();
+                Gson gson = new GsonBuilder().create();//"{\"delayAds\":24,\"delayService\":24,\"idFullService\":\"/21617015150/734252/21734366950\",\"intervalService\":10,\"percentAds\":50}";//
+//                Log.d("caomui111111", result + "");
+//                AdsConfig jsonConfig = gson.fromJson(result, AdsConfig.class);
+                JsonObject jsonObject = new JsonParser().parse(response.body().string()).getAsJsonObject();
+//                Log.d("caomui===", jsonObject.get("delayService").getAsString());
+//                Log.d("caomui11", jsonConfig.intervalService + "");
+//                Log.d("caomui22", jsonConfig.idFullService + "");
+//                Log.d("caomui33",  jsonConfig.delayService + "");
+
+                mPrefs.edit().putInt("intervalService",jsonObject.get("intervalService").getAsInt()).commit();
+                mPrefs.edit().putString("idFullService",jsonObject.get("idFullService").getAsString()).commit();
+                mPrefs.edit().putInt("delayService",jsonObject.get("delayService").getAsInt()).commit();
+
                 MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

