@@ -15,25 +15,26 @@
  */
 
 package com.mghstudio.ringtonemaker.Ringdroid.soundfile;
-
-import android.app.Application;
-import android.content.Intent;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaCodec;
-import android.media.MediaExtractor;
-import android.media.MediaFormat;
-import android.media.MediaRecorder;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.support.annotation.RequiresApi;
-import android.util.Log;
+/*
+ * Copyright (C) 2015 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -41,6 +42,16 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.Arrays;
+
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaCodec;
+import android.media.MediaExtractor;
+import android.media.MediaFormat;
+import android.media.MediaRecorder;
+import android.os.Build;
+import android.os.Environment;
+import android.util.Log;
 
 public class SoundFile {
     private ProgressListener mProgressListener = null;
@@ -103,7 +114,7 @@ public class SoundFile {
     // Create and return a SoundFile object using the file fileName.
     public static SoundFile create(String fileName,
                                    ProgressListener progressListener)
-            throws
+            throws java.io.FileNotFoundException,
             java.io.IOException, InvalidInputException {
         // First check that the file exists and that its extension is supported.
         File f = new File(fileName);
@@ -176,14 +187,15 @@ public class SoundFile {
     }
 
     public ShortBuffer getSamples() {
-       /* if (mDecodedSamples != null) {
-            return mDecodedSamples.asReadOnlyBuffer();
-        } else {
-            return null;
-        }*/
         if (mDecodedSamples != null) {
-            return mDecodedSamples;
-//            return mDecodedSamples.asReadOnlyBuffer();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+                    Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
+                // Hack for Nougat where asReadOnlyBuffer fails to respect byte ordering.
+                // See https://code.google.com/p/android/issues/detail?id=223824
+                return mDecodedSamples;
+            } else {
+                return mDecodedSamples.asReadOnlyBuffer();
+            }
         } else {
             return null;
         }
@@ -197,9 +209,8 @@ public class SoundFile {
         mProgressListener = progressListener;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     private void ReadFile(File inputFile)
-            throws
+            throws java.io.FileNotFoundException,
             java.io.IOException, InvalidInputException {
         MediaExtractor extractor = new MediaExtractor();
         MediaFormat format = null;
@@ -226,7 +237,7 @@ public class SoundFile {
         mSampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
         // Expected total number of samples per channel.
         int expectedNumSamples =
-            (int)((format.getLong(MediaFormat.KEY_DURATION) / 1000000.f) * mSampleRate + 0.5f);
+                (int)((format.getLong(MediaFormat.KEY_DURATION) / 1000000.f) * mSampleRate + 0.5f);
 
         MediaCodec codec = MediaCodec.createDecoderByType(format.getString(MediaFormat.KEY_MIME));
         codec.configure(format, null, null, 0);
@@ -246,8 +257,7 @@ public class SoundFile {
         // For longer streams, the buffer size will be increased later on, calculating a rough
         // estimate of the total size needed to store all the samples in order to resize the buffer
         // only once.
-        mDecodedBytes = ByteBuffer.allocate(1000);
-
+        mDecodedBytes = ByteBuffer.allocate(1<<20);
         Boolean firstSampleData = true;
         while (true) {
             // read data from file and feed it to the decoder input buffers.
@@ -306,8 +316,8 @@ public class SoundFile {
                     // make sure to allocate at least 5MB more than the initial size.
                     int position = mDecodedBytes.position();
                     int newSize = (int)((position * (1.0 * mFileSize / tot_size_read)) * 1.2);
-                    if (newSize - position < info.size + 5 * (1000)) {
-                        newSize = position + info.size + 5 * (1000);
+                    if (newSize - position < info.size + 5 * (1<<20)) {
+                        newSize = position + info.size + 5 * (1<<20);
                     }
                     ByteBuffer newDecodedBytes = null;
                     // Try to allocate memory. If we are OOM, try to run the garbage collector.
@@ -356,7 +366,6 @@ public class SoundFile {
                 break;
             }
         }
-
         mNumSamples = mDecodedBytes.position() / (mChannels * 2);  // One sample = 2 bytes.
         mDecodedBytes.rewind();
         mDecodedBytes.order(ByteOrder.LITTLE_ENDIAN);
@@ -395,7 +404,7 @@ public class SoundFile {
                     gain = value;
                 }
             }
-            mFrameGains[i] = (int) Math.sqrt(gain);  // here gain = sqrt(max value of 1st channel)...
+            mFrameGains[i] = (int)Math.sqrt(gain);  // here gain = sqrt(max value of 1st channel)...
             mFrameLens[i] = frameLens;  // totally not accurate...
             mFrameOffsets[i] = (int)(i * (1000 * mAvgBitRate / 8) *  //  = i * frameLens
                     ((float)getSamplesPerFrame() / mSampleRate));
@@ -427,7 +436,7 @@ public class SoundFile {
                 AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT,
                 minBufferSize
-                );
+        );
 
         // Allocate memory for 20 seconds first. Reallocate later if more is needed.
         mDecodedBytes = ByteBuffer.allocate(20 * mSampleRate * 2);
@@ -493,7 +502,7 @@ public class SoundFile {
                     gain = value;
                 }
             }
-            mFrameGains[i] = (int) Math.sqrt(gain);  // here gain = sqrt(max value of 1st channel)...
+            mFrameGains[i] = (int)Math.sqrt(gain);  // here gain = sqrt(max value of 1st channel)...
         }
         mDecodedSamples.rewind();
         // DumpSamples();  // Uncomment this line to dump the samples in a TSV file.
@@ -507,7 +516,6 @@ public class SoundFile {
         WriteFile(outputFile, startTime, endTime);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void WriteFile(File outputFile, float startTime, float endTime)
             throws java.io.IOException {
         int startOffset = (int)(startTime * mSampleRate) * 2 * mChannels;
@@ -644,8 +652,6 @@ public class SoundFile {
                 outputStream.write(buffer, 0, remaining);
             }
             outputStream.close();
-
-
         } catch (IOException e) {
             Log.e("Ringdroid", "Failed to create the .m4a file.");
             Log.e("Ringdroid", getStackTrace(e));
@@ -740,7 +746,7 @@ public class SoundFile {
         if (!externalRootDir.endsWith("/")) {
             externalRootDir += "/";
         }
-        String parentDir = externalRootDir + "ringtoneMaker/debug/";
+        String parentDir = externalRootDir + "media/audio/debug/";
         // Create the parent directory
         File parentDirFile = new File(parentDir);
         parentDirFile.mkdirs();
