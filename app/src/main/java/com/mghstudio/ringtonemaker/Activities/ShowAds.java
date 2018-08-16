@@ -22,10 +22,11 @@ public class ShowAds extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("Wellcome");
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.white)));
+
         try
         {
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.about);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.white)));
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fbinfo);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 setTaskDescription(new ActivityManager.TaskDescription("", bitmap,
                         ContextCompat.getColor(getApplicationContext(), R.color.tuan)));

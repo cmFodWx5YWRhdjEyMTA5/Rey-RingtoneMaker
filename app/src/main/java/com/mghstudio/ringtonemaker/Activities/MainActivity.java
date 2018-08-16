@@ -156,12 +156,13 @@ public class MainActivity extends AppCompatActivity {
 
         OkHttpClient client = new OkHttpClient();
         Request okRequest = new Request.Builder()
-                .url(AppConstants.URL_CONFIG+ "?id=" + uuid)
+                .url(AppConstants.URL_CONFIG)
                 .build();
 
         client.newCall(okRequest).enqueue(new Callback() {
             @Override
             public void onFailure(okhttp3.Call call, IOException e) {
+
             }
 
             @Override
