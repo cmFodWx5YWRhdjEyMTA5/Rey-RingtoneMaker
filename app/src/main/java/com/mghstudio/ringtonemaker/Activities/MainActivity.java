@@ -145,13 +145,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void getAppConfig()
     {
-        mPrefs = getSharedPreferences("adsserver_ringtone", 0);
+        mPrefs = getSharedPreferences("adsserver", 0);
         String uuid;
         if (mPrefs.contains("uuid")) {
             uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
         } else {
             uuid = UUID.randomUUID().toString();
-            mPrefs.edit().putString("uuid", uuid).commit();
+            mPrefs.edit().putString("uuid", "ring"+uuid).commit();
         }
 
         OkHttpClient client = new OkHttpClient();
@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 JsonObject jsonObject = new JsonParser().parse(response.body().string()).getAsJsonObject();
 //                Log.d("caomui===", jsonObject.get("delayService").getAsString());
 //                Log.d("caomui11", jsonConfig.intervalService + "");
-//                Log.d("caomui22", jsonConfig.idFullService + "");
+//                Log.d("caomui22", jsonObject.get("idFullService").getAsString());
 //                Log.d("caomui33",  jsonConfig.delayService + "");
 
                 mPrefs.edit().putInt("intervalService",jsonObject.get("intervalService").getAsInt()).commit();

@@ -10,8 +10,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
     <!--<uses-permission android:name="android.permission.REAL_GET_TASKS" />-->
-    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+    <!--<uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />-->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-feature android:required="false" android:name="android.hardware.faketouch"/>
 
     <supports-screens android:anyDensity="true" />
 

