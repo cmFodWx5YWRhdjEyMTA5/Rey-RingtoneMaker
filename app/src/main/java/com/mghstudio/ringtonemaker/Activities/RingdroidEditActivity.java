@@ -605,7 +605,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
         }
 
         RateThisApp.onCreate(RingdroidEditActivity.this);
-        RateThisApp.Config config = new RateThisApp.Config(0, 2);
+        RateThisApp.Config config = new RateThisApp.Config(0, 0);
         config.setMessage(R.string.rate_5_stars);
         RateThisApp.init(config);
 
@@ -1627,7 +1627,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                                 R.string.default_ringtone_success_message,
                                 Toast.LENGTH_LONG)
                                 .show();
-                        RateThisApp.showRateDialog(RingdroidEditActivity.this);
+                        RateThisApp.showRateDialogIfNeeded(RingdroidEditActivity.this);
                         break;
                     case R.id.button_choose_contact:
                         if (Utils.checkAndRequestContactsPermissions(RingdroidEditActivity.this)) {
@@ -1636,7 +1636,7 @@ public class RingdroidEditActivity extends AppCompatActivity implements MarkerVi
                         break;
                     default:
                     case R.id.button_do_nothing:
-                        RateThisApp.showRateDialog(RingdroidEditActivity.this);
+                        RateThisApp.showRateDialogIfNeeded(RingdroidEditActivity.this);
                         break;
                 }
             }

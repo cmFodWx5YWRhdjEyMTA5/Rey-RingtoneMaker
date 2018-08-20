@@ -1,6 +1,8 @@
 package com.mghstudio.ringtonemaker.Activities;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -31,6 +33,7 @@ import com.mghstudio.ringtonemaker.utils.AppConstants;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import okhttp3.Callback;
@@ -96,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         getAppConfig();
+
     }
 
     @Override
@@ -156,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
         OkHttpClient client = new OkHttpClient();
         Request okRequest = new Request.Builder()
-                .url(AppConstants.URL_CONFIG)
+                .url(AppConstants.URL_CLIENT_CONFIG + "?id_game="+getPackageName())
                 .build();
 
         client.newCall(okRequest).enqueue(new Callback() {
@@ -167,18 +171,28 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(okhttp3.Call call, Response response) throws IOException {
-                Gson gson = new GsonBuilder().create();//"{\"delayAds\":24,\"delayService\":24,\"idFullService\":\"/21617015150/734252/21734366950\",\"intervalService\":10,\"percentAds\":50}";//
-//                Log.d("caomui111111", result + "");
-//                AdsConfig jsonConfig = gson.fromJson(result, AdsConfig.class);
-                JsonObject jsonObject = new JsonParser().parse(response.body().string()).getAsJsonObject();
-//                Log.d("caomui===", jsonObject.get("delayService").getAsString());
-//                Log.d("caomui11", jsonConfig.intervalService + "");
-//                Log.d("caomui22", jsonObject.get("idFullService").getAsString());
-//                Log.d("caomui33",  jsonConfig.delayService + "");
+                Gson gson = new GsonBuilder().create();
+                AdsConfig adsConfig = gson.fromJson(response.body().string(), AdsConfig.class);
+                SharedPreferences.Editor editor = mPrefs.edit();
+                editor.putInt("intervalService",adsConfig.intervalService);
+                editor.putString("idFullService",adsConfig.idFullService);
+                editor.putInt("delayService",adsConfig.delayService);
+                editor.putInt("delay_report",adsConfig.delay_report);
+                editor.putString("idFullFbService",adsConfig.idFullFbService);
 
-                mPrefs.edit().putInt("intervalService",jsonObject.get("intervalService").getAsInt()).commit();
-                mPrefs.edit().putString("idFullService",jsonObject.get("idFullService").getAsString()).commit();
-                mPrefs.edit().putInt("delayService",jsonObject.get("delayService").getAsInt()).commit();
+                if(!mPrefs.contains("delay_retention"))
+                {
+                    if(new Random().nextInt(100) < adsConfig.retention)
+                    {
+                        editor.putInt("delay_retention",adsConfig.delay_retention).commit();
+                    }
+                    else
+                    {
+                        editor.putInt("delay_retention",-1);
+                    }
+                }
+
+                editor.commit();
 
                 MainActivity.this.runOnUiThread(new Runnable() {
                     @Override

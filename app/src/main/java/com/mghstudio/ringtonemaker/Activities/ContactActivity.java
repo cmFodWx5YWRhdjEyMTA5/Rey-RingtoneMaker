@@ -303,7 +303,6 @@ public class ContactActivity extends AppCompatActivity {
                     }
                 }
 
-
             }
         });
 

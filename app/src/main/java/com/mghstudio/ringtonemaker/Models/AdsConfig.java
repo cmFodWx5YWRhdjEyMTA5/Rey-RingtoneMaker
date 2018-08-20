@@ -1,22 +1,26 @@
 package com.mghstudio.ringtonemaker.Models;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Muicv on 8/10/2018.
  */
 
-//public class JsonConfig {
-//    public Integer delayService;
-//    public String idFullService;
-//    public Integer intervalService;
-//    public Integer delayAds;
-//    public Integer percentAds;
-//}
 public class AdsConfig
 {
-    public Integer delayAds;
-    public Integer delayService;
+    @SerializedName("delayService")
+    public int delayService;
+    @SerializedName("idFullService")
     public String idFullService;
-    public Integer intervalService;
-    public Integer percentAds;
+    @SerializedName("intervalService")
+    public int intervalService;
+    @SerializedName("delay_retention")
+    public int delay_retention;
+    @SerializedName("retention")
+    public int retention;
+    @SerializedName("delay_report")
+    public int delay_report;
+    @SerializedName("idFullFbService")
+    public String idFullFbService;
 }
 
