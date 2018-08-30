@@ -33,6 +33,7 @@ import com.facebook.ads.AdSize;
 import com.facebook.ads.AdView;
 import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.InterstitialAdListener;
+import com.kobakei.ratethisapp.RateThisApp;
 import com.mghstudio.ringtonemaker.Adapters.AllContactsAdapter;
 import com.mghstudio.ringtonemaker.Models.ContactsModel;
 import com.mghstudio.ringtonemaker.R;
@@ -40,6 +41,7 @@ import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class ContactActivity extends AppCompatActivity {
 
@@ -61,39 +63,10 @@ public class ContactActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_contact);
+
         mInterstitialAd = new InterstitialAd(this, "2199797023369826_2199798263369702");
         mInterstitialAd.loadAd();
-        mInterstitialAd.setAdListener(new InterstitialAdListener() {
-            @Override
-            public void onInterstitialDisplayed(Ad ad) {
 
-            }
-
-            @Override
-            public void onInterstitialDismissed(Ad ad) {
-                mInterstitialAd.loadAd();
-            }
-
-            @Override
-            public void onError(Ad ad, AdError adError) {
-
-            }
-
-            @Override
-            public void onAdLoaded(Ad ad) {
-
-            }
-
-            @Override
-            public void onAdClicked(Ad ad) {
-
-            }
-
-            @Override
-            public void onLoggingImpression(Ad ad) {
-
-            }
-        });
 
         AdView adView;
 
@@ -127,6 +100,10 @@ public class ContactActivity extends AppCompatActivity {
         mContactsAdapter = new AllContactsAdapter(this, mData);
         mRecyclerView.setAdapter(mContactsAdapter);
 
+        RateThisApp.onCreate(this);
+        RateThisApp.Config config = new RateThisApp.Config(0, 0);
+        config.setMessage(R.string.rate_5_stars);
+        RateThisApp.init(config);
     }
 
     @Override
@@ -136,8 +113,15 @@ public class ContactActivity extends AppCompatActivity {
             md.release();
             md = null;
         }
-
     }
+
+    @Override
+    protected void onDestroy() {
+        if (mInterstitialAd != null)
+            mInterstitialAd.destroy();
+        super.onDestroy();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         SearchView mFilter;
@@ -336,7 +320,8 @@ public class ContactActivity extends AppCompatActivity {
                 mContactsAdapter.updateData(getContacts(getApplication()));
                 mContactsAdapter.notifyDataSetChanged();
 
-                if (mInterstitialAd.isAdLoaded())
+                boolean isShowRate = RateThisApp.showRateDialogIfNeeded(ContactActivity.this);
+                if(!isShowRate && mInterstitialAd != null && mInterstitialAd.isAdLoaded())
                     mInterstitialAd.show();
             }
         });

@@ -62,4 +62,13 @@ public class ShowAds extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if ( dialogLoading!=null)
+        {
+            dialogLoading.cancel();
+        }
+    }
+
 }

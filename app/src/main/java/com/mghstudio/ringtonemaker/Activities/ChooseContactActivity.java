@@ -15,10 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.facebook.ads.Ad;
-import com.facebook.ads.AdError;
-import com.facebook.ads.InterstitialAd;
-import com.facebook.ads.InterstitialAdListener;
 import com.mghstudio.ringtonemaker.Adapters.ContactsAdapter;
 import com.mghstudio.ringtonemaker.Models.ContactsModel;
 import com.mghstudio.ringtonemaker.R;
@@ -43,14 +39,6 @@ public class ChooseContactActivity extends AppCompatActivity implements SearchVi
     private RecyclerView mRecyclerView;
     private ContactsAdapter mContactsAdapter;
     private ArrayList<ContactsModel> mData;
-    private InterstitialAd mInterstitialAd;
-
-    @Override
-    protected void onDestroy() {
-        if (mInterstitialAd != null)
-            mInterstitialAd.destroy();
-        super.onDestroy();
-    }
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -58,40 +46,6 @@ public class ChooseContactActivity extends AppCompatActivity implements SearchVi
         Intent intent = getIntent();
         mRingtoneUri = intent.getData();
         setContentView(R.layout.choose_contact);
-
-        mInterstitialAd = new InterstitialAd(this, "2199797023369826_2199798263369702");
-        mInterstitialAd.loadAd();
-        mInterstitialAd.setAdListener(new InterstitialAdListener() {
-            @Override
-            public void onInterstitialDisplayed(Ad ad) {
-
-            }
-
-            @Override
-            public void onInterstitialDismissed(Ad ad) {
-                finish();
-            }
-
-            @Override
-            public void onError(Ad ad, AdError adError) {
-
-            }
-
-            @Override
-            public void onAdLoaded(Ad ad) {
-
-            }
-
-            @Override
-            public void onAdClicked(Ad ad) {
-
-            }
-
-            @Override
-            public void onLoggingImpression(Ad ad) {
-
-            }
-        });
 
         mData = new ArrayList<>();
         mToolbar = findViewById(R.id.toolbar);
@@ -175,10 +129,7 @@ public class ChooseContactActivity extends AppCompatActivity implements SearchVi
 
         Toast.makeText(this, message, Toast.LENGTH_SHORT)
                 .show();
-        if (mInterstitialAd.isAdLoaded())
-            mInterstitialAd.show();
-        else
-            finish();
+        finish();
     }
 
 

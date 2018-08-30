@@ -39,6 +39,7 @@ import com.facebook.ads.AdSize;
 import com.facebook.ads.AdView;
 import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.InterstitialAdListener;
+import com.kobakei.ratethisapp.RateThisApp;
 import com.mghstudio.ringtonemaker.R;
 import com.mghstudio.ringtonemaker.Ringdroid.Utils;
 import com.mghstudio.ringtonemaker.Ringdroid.soundfile.SoundFile;
@@ -218,40 +219,14 @@ public class RingdroidSelectActivity2
 
         mInterstitialAd = new InterstitialAd(this, "2199797023369826_2199798263369702");
         mInterstitialAd.loadAd();
-        mInterstitialAd.setAdListener(new InterstitialAdListener() {
-            @Override
-            public void onInterstitialDisplayed(Ad ad) {
-
-            }
-
-            @Override
-            public void onInterstitialDismissed(Ad ad) {
-                mInterstitialAd.loadAd();
-            }
-
-            @Override
-            public void onError(Ad ad, AdError adError) {
-
-            }
-
-            @Override
-            public void onAdLoaded(Ad ad) {
-
-            }
-
-            @Override
-            public void onAdClicked(Ad ad) {
-
-            }
-
-            @Override
-            public void onLoggingImpression(Ad ad) {
-
-            }
-        });
 
         // Long-press opens a context menu
         registerForContextMenu(getListView());
+
+        RateThisApp.onCreate(this);
+        RateThisApp.Config config = new RateThisApp.Config(0, 0);
+        config.setMessage(R.string.rate_5_stars);
+        RateThisApp.init(config);
     }
 
     private void setDurationFromCursor(TextView view, @NonNull Cursor cursor) {
@@ -439,7 +414,9 @@ public class RingdroidSelectActivity2
                     return false;
                 else {
                     setAsDefaultRingtoneOrNotification();
-                    if (mInterstitialAd.isAdLoaded())
+
+                    boolean isShowRate = RateThisApp.showRateDialogIfNeeded(RingdroidSelectActivity2.this);
+                    if(!isShowRate && mInterstitialAd != null && mInterstitialAd.isAdLoaded())
                         mInterstitialAd.show();
 
                     return true;
@@ -756,5 +733,12 @@ public class RingdroidSelectActivity2
         Log.d("caomui","reset");
         mAdapter.swapCursor(null);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mInterstitialAd != null)
+            mInterstitialAd.destroy();
+        super.onDestroy();
     }
 }
