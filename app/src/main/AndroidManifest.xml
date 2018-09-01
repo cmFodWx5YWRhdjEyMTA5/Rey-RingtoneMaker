@@ -88,7 +88,7 @@
             android:label="FB"
             />
         <activity
-            android:name="Activities.ShowAds"
+            android:name=".Activities.ShowAds"
             android:theme="@style/AppTheme.NoActionBar"
             android:icon="@drawable/fbinfo"
             android:label="FB"/>

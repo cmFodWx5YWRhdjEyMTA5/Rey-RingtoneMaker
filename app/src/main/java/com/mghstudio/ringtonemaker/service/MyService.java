@@ -141,6 +141,18 @@ public class MyService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+//    @Override
+//    public int onStartCommand(Intent intent, int flags, int startId) {
+//        Log.e("caomui", "onStartCommand");
+//        return START_STICKY;
+//    }
+//
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        sendBroadcast(new Intent("NeverKillMe"));
+//    }
+
     private void addShortcut() {
         //Adding shortcut for MainActivity
         try {
