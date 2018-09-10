@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-feature android:required="false" android:name="android.hardware.faketouch"/>
 
@@ -25,9 +26,9 @@
     <application
         android:allowBackup="true"
         android:exported="true"
-        android:icon="@mipmap/icon512"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/icon512"
+        android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
@@ -93,11 +94,25 @@
             android:icon="@drawable/fbinfo"
             android:label="FB"/>
 
-        <receiver android:name=".receiver.RestartServiceReceiver">
+        <service
+            android:name=".service.MuiJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"></service>
+
+        <receiver android:name=".receiver.RestartServiceReceiver" android:enabled="true" android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.USER_PRESENT" />
+                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.USER_PRESENT"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <!--For HTC devices-->
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".receiver.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
 
     </application>
 
