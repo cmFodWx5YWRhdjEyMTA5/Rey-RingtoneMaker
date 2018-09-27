@@ -3,10 +3,10 @@
         android:layout="@layout/save_as"
         >
     </Preference>
-    <Preference
-        android:layout="@layout/rate_us"
-        android:key="RATE">
-    </Preference>
+    <!--<Preference-->
+        <!--android:layout="@layout/rate_us"-->
+        <!--android:key="RATE">-->
+    <!--</Preference>-->
 
     <Preference
         android:layout="@layout/share"
@@ -19,9 +19,16 @@
     </Preference>
 
     <Preference
+        android:layout="@layout/privacy"
+        android:key="PRIVACY">
+    </Preference>
+
+    <Preference
         android:layout="@layout/about"
         android:key="ABOUT">
     </Preference>
+
+
 
     <com.mghstudio.ringtonemaker.Views.AdPreference android:layout="@layout/contact_ads" />
 </PreferenceScreen>

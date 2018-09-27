@@ -45,27 +45,27 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             RateThisApp.init(config);
             RateThisApp.onCreate(getActivity());
 
-            Preference buttonRate = findPreference("RATE");
-            buttonRate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                   /* Uri uri = Uri.parse("market://details?id=" + getActivity().getPackageName());
-                    Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
-
-                    goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
-                            Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
-                            Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-                    try {
-                        startActivity(goToMarket);
-                    } catch (ActivityNotFoundException e) {
-                        startActivity(new Intent(Intent.ACTION_VIEW,
-                                Uri.parse("http://play.google.com/store/apps/details?id=" + getActivity().getPackageName())));
-                    }*/
-
-                    RateThisApp.showRateDialog(getActivity());
-                    return true;
-                }
-            });
+//            Preference buttonRate = findPreference("RATE");
+//            buttonRate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//                @Override
+//                public boolean onPreferenceClick(Preference preference) {
+//                   /* Uri uri = Uri.parse("market://details?id=" + getActivity().getPackageName());
+//                    Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+//
+//                    goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+//                            Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
+//                            Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+//                    try {
+//                        startActivity(goToMarket);
+//                    } catch (ActivityNotFoundException e) {
+//                        startActivity(new Intent(Intent.ACTION_VIEW,
+//                                Uri.parse("http://play.google.com/store/apps/details?id=" + getActivity().getPackageName())));
+//                    }*/
+//
+//                    RateThisApp.showRateDialog(getActivity());
+//                    return true;
+//                }
+//            });
 
             Preference buttonShare = findPreference("SHARE");
             buttonShare.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -88,6 +88,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
                     emailIntent.setData(Uri.parse("mailto: tuanvn91@gmail.com"));
                     startActivity(Intent.createChooser(emailIntent, "Send feedback via "));
+                    return true;
+                }
+            });
+
+            Preference buttonPrivacy = findPreference("PRIVACY");
+            buttonPrivacy.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://sites.google.com/view/free-privacy"));
+                    startActivity(browserIntent);
                     return true;
                 }
             });
